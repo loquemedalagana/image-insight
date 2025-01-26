@@ -1,0 +1,8 @@
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.cr3 filter=lfs diff=lfs merge=lfs -text
+*.crw filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.cr3 filter=lfs diff=lfs merge=lfs -text
+*.crw filter=lfs diff=lfs merge=lfs -text
