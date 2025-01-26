@@ -1,0 +1,10 @@
+overwrite: true
+schema: "http://localhost:3000/api/graphql"
+documents: "app/**/*.tsx"
+generates:
+  ./app/__generated__:
+    preset: near-operation-file
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-query
