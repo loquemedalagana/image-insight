@@ -1,5 +1,6 @@
 import { extractMetadata } from '@/lib/extractMetadata';
-import { mockDatabase } from '@/lib/mockDB'; // Mock DB를 사용
+import { mockDatabase } from '@/lib/mockDB';
+import { extractPhotoMetadata } from '@/utils/metadataUtils';
 
 export const resolvers = {
   Query: {
@@ -27,6 +28,24 @@ export const resolvers = {
   },
 
   Mutation: {
+    addMetadata: async (
+      _: any,
+      { filePath, category }: { filePath: string; category: string },
+    ) => {
+      try {
+        // 공통 함수 호출
+        const photo = await extractPhotoMetadata(filePath, category);
+
+        // DB에 저장
+        const insertedPhoto = await mockDatabase.insert(photo);
+
+        console.log('Metadata added:', insertedPhoto);
+        return insertedPhoto;
+      } catch (error) {
+        console.error('Error adding metadata:', error);
+        throw new Error('Failed to add metadata');
+      }
+    },
     // ID로 메타데이터 삭제
     deleteById: async (_: any, { id }: { id: string }) => {
       const success = await mockDatabase.deleteById(id); // Mock DB에서 비동기 삭제
