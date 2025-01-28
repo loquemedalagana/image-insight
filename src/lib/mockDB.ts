@@ -18,7 +18,7 @@ export const mockDatabase: Database = {
     return mockDB.find((item) => item.id === id) || null;
   },
   insert: async (data: any) => {
-    const newData = { id: uuidv4(), ...data };
+    const newData = { id: data.id ?? uuidv4(), ...data };
     mockDB.push(newData);
     return newData;
   },
