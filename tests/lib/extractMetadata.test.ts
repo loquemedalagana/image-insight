@@ -1,25 +1,10 @@
-import fs from 'fs';
 import path from 'path';
 import { extractMetadata } from '@/lib/extractMetadata';
+import { getAllImages } from '@/utils/fileUtils';
 
 test('extractMetadata should return metadata for all sample images', async () => {
   // 샘플 이미지 디렉토리 경로
   const samplesDir = path.join(process.cwd(), 'public/samples');
-
-  // 재귀적으로 이미지 파일을 검색하는 함수
-  const getAllImages = (dir: string): string[] => {
-    return fs.readdirSync(dir).flatMap((item) => {
-      const itemPath = path.join(dir, item);
-      const stats = fs.statSync(itemPath);
-
-      if (stats.isDirectory()) {
-        return getAllImages(itemPath); // 하위 디렉토리 탐색
-      } else if (stats.isFile() && /\.(jpe?g|JPE?G|cr3|CR3)$/i.test(item)) {
-        return itemPath; // 이미지 파일만 반환
-      }
-      return [];
-    });
-  };
 
   // 예상 파일 목록 가져오기
   const expectedImages = getAllImages(samplesDir);
