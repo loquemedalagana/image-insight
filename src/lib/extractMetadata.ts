@@ -2,7 +2,6 @@ import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 import { processExif } from '@/lib/processExif';
-import { mockDatabase } from '@/lib/mockDB';
 
 const samplesDir = path.join(process.cwd(), 'public/samples');
 
@@ -24,10 +23,8 @@ function* walkDir(dir: string): Generator<string> {
 
 // EXIF와 일반 메타데이터를 통합하여 추출
 export const extractMetadata = async () => {
-  // Mock DB 초기화
-  mockDatabase.clear();
+  const photos = [];
 
-  // 파일 메타데이터를 추출하고 Mock DB에 저장
   for (const filePath of walkDir(samplesDir)) {
     try {
       // Sharp로 기본 메타데이터 추출
@@ -47,8 +44,7 @@ export const extractMetadata = async () => {
         exif: exifData, // 사람이 읽을 수 있는 EXIF 데이터
       };
 
-      // Mock DB에 저장 및 반환된 데이터 활용
-      mockDatabase.insert(photo);
+      photos.push(photo);
     } catch (error: any) {
       console.error(
         `Failed to extract metadata for file: ${filePath}`,
@@ -57,6 +53,5 @@ export const extractMetadata = async () => {
     }
   }
 
-  // Mock DB에서 모든 데이터 반환
-  return mockDatabase.findAll();
+  return photos;
 };

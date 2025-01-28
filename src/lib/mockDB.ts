@@ -11,8 +11,12 @@ export interface Database {
 let mockDB: any[] = [];
 
 export const mockDatabase: Database = {
-  findAll: async () => mockDB,
-  findById: async (id: string) => mockDB.find((item) => item.id === id) || null,
+  findAll: async () => {
+    return mockDB;
+  },
+  findById: async (id: string) => {
+    return mockDB.find((item) => item.id === id) || null;
+  },
   insert: async (data: any) => {
     const newData = { id: uuidv4(), ...data };
     mockDB.push(newData);
@@ -21,7 +25,7 @@ export const mockDatabase: Database = {
   deleteById: async (id: string) => {
     const initialLength = mockDB.length;
     mockDB = mockDB.filter((item) => item.id !== id);
-    return mockDB.length < initialLength;
+    return mockDB.length < initialLength; // 삭제 성공 여부 반환
   },
   clear: async () => {
     mockDB = [];
