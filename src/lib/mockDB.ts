@@ -1,25 +1,30 @@
-// src/lib/mockDb.ts
 import { v4 as uuidv4 } from 'uuid';
 
-let mockDb: any[] = [];
+let mockDB: any[] = [];
 
 export const mockDatabase = {
-  findAll: () => mockDb,
-  findById: (id: string) => mockDb.find((item) => item.id === id),
-  deleteById: (id: string) => {
-    const index = mockDb.findIndex((item) => item.id === id);
-    if (index !== -1) {
-      mockDb.splice(index, 1);
-      return true;
-    }
-    return false;
-  },
+  // 모든 데이터 조회
+  findAll: () => mockDB,
+
+  // ID로 데이터 검색
+  findById: (id: string) => mockDB.find((item) => item.id === id),
+
+  // 데이터 삽입
   insert: (data: any) => {
     const newData = { id: uuidv4(), ...data };
-    mockDb.push(newData);
+    mockDB.push(newData);
     return newData;
   },
+
+  // ID로 데이터 삭제
+  deleteById: (id: string) => {
+    const initialLength = mockDB.length;
+    mockDB = mockDB.filter((item) => item.id !== id);
+    return mockDB.length < initialLength; // 삭제 성공 여부 반환
+  },
+
+  // Mock DB 초기화
   clear: () => {
-    mockDb = [];
+    mockDB = [];
   },
 };
