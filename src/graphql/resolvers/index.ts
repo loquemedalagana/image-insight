@@ -9,8 +9,10 @@ export const resolvers = {
       const metadata = await extractMetadata();
 
       // Mock DB 초기화 및 데이터 저장
-      await mockDatabase.clear();
-      metadata.forEach((item) => mockDatabase.insert(item));
+      await mockDatabase.clear(); // 비동기 호출
+      for (const item of metadata) {
+        await mockDatabase.insert(item); // 비동기 삽입
+      }
 
       console.log('Extracted Metadata:', metadata); // 디버깅용 로그
       return metadata;
@@ -18,7 +20,7 @@ export const resolvers = {
 
     // ID로 메타데이터 조회
     metadataById: async (_: any, { id }: { id: string }) => {
-      const metadata = mockDatabase.findById(id); // Mock DB에서 검색
+      const metadata = await mockDatabase.findById(id); // Mock DB에서 비동기 검색
       console.log('Metadata by ID:', id, metadata); // 디버깅용 로그
       return metadata || null; // 데이터가 없으면 null 반환
     },
@@ -27,7 +29,7 @@ export const resolvers = {
   Mutation: {
     // ID로 메타데이터 삭제
     deleteById: async (_: any, { id }: { id: string }) => {
-      const success = mockDatabase.deleteById(id); // Mock DB에서 삭제
+      const success = await mockDatabase.deleteById(id); // Mock DB에서 비동기 삭제
       console.log('Delete Metadata by ID:', id, success); // 디버깅용 로그
       return success; // 삭제 성공 여부 반환
     },
