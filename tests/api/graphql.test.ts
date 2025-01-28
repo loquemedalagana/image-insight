@@ -1,7 +1,6 @@
 import { createTestServer } from '@/graphql/testServer';
 import { gql } from 'graphql-tag';
-import { ApolloServer } from '@apollo/server';
-import { ExecutionResult } from 'graphql';
+import { ApolloServer, GraphQLResponse } from '@apollo/server';
 
 describe('GraphQL Query Tests', () => {
   let server: ApolloServer;
@@ -37,15 +36,24 @@ describe('GraphQL Query Tests', () => {
       }
     `;
 
-    // 명시적으로 ExecutionResult 타입 사용
-    const result: ExecutionResult = await server.executeOperation({
+    const result: GraphQLResponse = await server.executeOperation({
       query: GET_METADATA,
     });
 
-    // 데이터와 오류 검사
-    expect(result.errors).toBeUndefined(); // 에러가 없어야 함
-    expect(result.data).toBeDefined(); // 데이터가 정의되어 있어야 함
-    expect(result.data?.metadata).toBeInstanceOf(Array); // 데이터는 배열이어야 함
-    expect(result.data?.metadata[0]).toHaveProperty('fileName');
+    // kind가 "single"인 경우에만 처리
+    if (result.body.kind === 'single') {
+      const singleResult = result.body.singleResult;
+
+      // 데이터와 오류 검사
+      expect(singleResult?.errors).toBeUndefined(); // 에러가 없어야 함
+      expect(singleResult?.data).toBeDefined(); // 데이터가 정의되어 있어야 함
+      expect(singleResult?.data?.metadata).toBeInstanceOf(Array); // 데이터는 배열이어야 함
+      expect((singleResult?.data?.metadata as any[])[0]).toHaveProperty(
+        'fileName',
+      );
+    } else {
+      // 예상치 못한 응답 형식 처리 (예: 점진적 결과)
+      throw new Error('Unexpected incremental response');
+    }
   });
 });
