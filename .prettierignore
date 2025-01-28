@@ -1,0 +1,8 @@
+# Ignore all files in the build directory
+.next/
+
+# Ignore all files in the node_modules directory
+node_modules/
+
+# Ignore specific files
+src/__generated__/
