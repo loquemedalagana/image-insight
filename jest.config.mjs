@@ -6,13 +6,9 @@ export default {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: 'tsconfig.json', useESM: true }],
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx'], // ESM 처리할 확장자
-  globals: {
-    'ts-jest': {
-      tsconfig: './tsconfig.json', // TypeScript 설정 파일
-      useESM: true, // ESM 활성화
-    },
-  },
+  transformIgnorePatterns: ['/node_modules/(?!your-esm-lib)'],
+  globals: {},
 };

@@ -1,27 +1,27 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "baseUrl": ".",
+    "target": "ESNext", // 최신 JavaScript 사용을 위해 ES2017에서 ESNext로 변경
+    "lib": ["dom", "dom.iterable", "esnext"], // 최신 ESNext 기능 유지
+    "module": "ESNext", // ESM 환경에서 사용
+    "moduleResolution": "node", // Node.js 모듈 해석 방식
+    "strict": true, // 엄격 모드 유지
+    "esModuleInterop": true, // CommonJS와 ESModule 간의 호환성 보장
+    "allowSyntheticDefaultImports": true, // ESM에서 기본 import 사용 가능
+    "skipLibCheck": true, // 라이브러리 타입 검사 생략
+    "noEmit": true, // 컴파일 결과를 출력하지 않음
+    "resolveJsonModule": true, // JSON 모듈 import 가능
+    "baseUrl": ".", // 경로 별칭 설정
     "paths": {
       "@/*": ["src/*"],
       "__generated__/*": ["src/__generated__/*"]
     },
-    "allowJs": true,
-    "incremental": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
+    "allowJs": true, // JavaScript 파일 허용
+    "incremental": true, // 컴파일 속도 개선을 위한 증분 빌드
+    "isolatedModules": true, // 개별 파일 수준에서 TypeScript 검사
+    "jsx": "preserve", // JSX를 변환하지 않고 유지
     "plugins": [
       {
-        "name": "next"
+        "name": "next" // Next.js 관련 TypeScript 지원
       }
     ]
   },
