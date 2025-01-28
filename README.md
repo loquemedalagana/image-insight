@@ -63,8 +63,8 @@
 ### 1. 클론
 
 ```bash
-git clone https://github.com/your-repository-name.git
-cd your-repository-name
+git clone https://github.com/image-insight.git
+cd image-insight
 ```
 
 ### 2. 의존성 설치
@@ -173,8 +173,8 @@ This project aims to **extract and manage image metadata**, focusing on a scalab
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-repository-name.git
-cd your-repository-name
+git clone https://github.com/image-insight.git
+cd image-insight
 ```
 
 ### 2. Install Dependencies
