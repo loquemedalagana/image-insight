@@ -32,4 +32,9 @@ type Query {
 
 type Mutation {
   deleteById(id: ID!): Boolean # 특정 id로 데이터 삭제
+  # 새로운 메타데이터를 추가하는 Mutation
+  addMetadata(
+    filePath: String! # 파일 경로
+    category: String! # 카테고리
+  ): Metadata
 }
