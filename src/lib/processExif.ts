@@ -1,17 +1,20 @@
 import exifr from 'exifr';
-import { ProcessExifReturn } from '@/lib/types';
+import fs from 'fs';
 
-export const processExif = async (
-  filePath: string,
-): Promise<ProcessExifReturn> => {
+export const processExif = async (filePath: string) => {
   try {
-    const exifData = await exifr.parse(filePath, {
+    // 파일 내용을 Buffer로 읽기
+    const fileBuffer = fs.readFileSync(filePath);
+
+    // exifr로 EXIF 데이터 추출
+    const exifData = await exifr.parse(fileBuffer, {
       tiff: true,
       exif: true,
       gps: true,
     });
 
     if (!exifData) {
+      console.warn(`No EXIF data found for file: ${filePath}`);
       return { message: 'No EXIF data found' };
     }
 
@@ -33,6 +36,6 @@ export const processExif = async (
       `Failed to process EXIF data for file: ${filePath}`,
       error.message,
     );
-    return null; // 오류 발생 시 null 반환
+    return null; // 실패 시 null 반환
   }
 };
