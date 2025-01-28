@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GET } from '@/app/api/metadata/route';
+import { jest } from '@jest/globals';
+import { Metadata } from '__generated__/graphql';
 
 test('API should return metadata for images', async () => {
   // Mock `NextResponse`
@@ -13,6 +15,6 @@ test('API should return metadata for images', async () => {
   expect(mockJson).toHaveBeenCalled();
   const [data] = mockJson.mock.calls[0];
   expect(data).toBeInstanceOf(Array);
-  expect(data[0]).toHaveProperty('fileName');
-  expect(data[0]).toHaveProperty('category');
+  expect((data as Metadata[])[0]).toHaveProperty('fileName');
+  expect((data as Metadata[])[0]).toHaveProperty('category');
 });

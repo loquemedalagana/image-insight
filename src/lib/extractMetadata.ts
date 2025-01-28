@@ -1,8 +1,6 @@
-import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
-import { processExif } from '@/lib/processExif';
-import { ExifData } from '@/lib/types';
+import { extractPhotoMetadata } from '@/utils/metadataUtils'; // Mock DB를 사용
 
 const samplesDir = path.join(process.cwd(), 'public/samples');
 
@@ -22,33 +20,17 @@ function* walkDir(dir: string): Generator<string> {
   }
 }
 
-// EXIF와 일반 메타데이터를 통합하여 추출
+// 디렉토리에서 모든 파일 메타데이터를 추출
 export const extractMetadata = async () => {
   const photos = [];
 
   for (const filePath of walkDir(samplesDir)) {
     try {
-      // Sharp로 기본 메타데이터 추출
-      const metadata = await sharp(filePath).metadata();
-      const stats = fs.statSync(filePath);
-
-      // exifr를 활용하여 EXIF 데이터 추출
-      const exifData = await processExif(filePath);
-
-      photos.push({
-        fileName: path.basename(filePath),
-        category: path.basename(path.dirname(filePath)), // 디렉토리 이름을 카테고리로 사용
-        width: metadata.width || 0,
-        height: metadata.height || 0,
-        format: metadata.format || 'unknown',
-        size: stats.size,
-        exif: exifData, // 사람이 읽을 수 있는 EXIF 데이터
-      });
+      const photo = await extractPhotoMetadata(filePath);
+      photos.push(photo);
     } catch (error: any) {
-      console.error(
-        `Failed to extract metadata for file: ${filePath}`,
-        error.message,
-      );
+      console.error(`Failed to process file: ${filePath}`, error.message);
+      // 특정 파일에서 실패해도 전체 처리를 계속 진행
     }
   }
 

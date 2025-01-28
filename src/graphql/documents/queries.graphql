@@ -1,0 +1,23 @@
+query GetMetadataById($id: ID!) {
+  metadataById(id: $id) {
+    id
+    fileName
+    category
+  }
+}
+
+query GetMetadata {
+  metadata {
+    id
+    fileName
+    category
+    width
+    height
+    format
+    size
+    exif {
+      make
+      model
+    }
+  }
+}
