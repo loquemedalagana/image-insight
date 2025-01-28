@@ -76,6 +76,10 @@ docker build -t image-scope .
 ```bash
 docker run -p 3000:3000 -v $(pwd):/usr/src/app image-scope
 
+or
+
+docker-compose up
+
 ```
 
 ### **1.3 브라우저에서 확인**
@@ -216,6 +220,9 @@ docker build -t image-scope .
 ```bash
 docker run -p 3000:3000 -v $(pwd):/usr/src/app image-scope
 
+or
+
+docker-compose up
 ```
 
 ### **1.3 Open in Browser**
