@@ -1,7 +1,9 @@
 import { createTestServer } from '@/graphql/testServer';
 import { gql } from 'graphql-tag';
-import { ApolloServer } from '@apollo/server';
+import { ApolloServer, GraphQLResponse } from '@apollo/server';
 import { mockDatabase } from '@/lib/mockDB';
+import { getAllImages } from '@/utils/fileUtils';
+import { Metadata } from '__generated__/graphql';
 
 describe('GraphQL API Tests', () => {
   let server: ApolloServer;
@@ -11,6 +13,8 @@ describe('GraphQL API Tests', () => {
   });
 
   it('should fetch all metadata', async () => {
+    const images = getAllImages('public/samples');
+
     const GET_METADATA = gql`
       query GetMetadata {
         metadata {
@@ -25,9 +29,9 @@ describe('GraphQL API Tests', () => {
       }
     `;
 
-    const result = await server.executeOperation({
+    const result = (await server.executeOperation({
       query: GET_METADATA,
-    });
+    })) as GraphQLResponse;
 
     expect(result.errors).toBeUndefined();
     expect(result.data?.metadata).toBeInstanceOf(Array);
@@ -38,7 +42,7 @@ describe('GraphQL API Tests', () => {
   });
 
   it('should fetch metadata by ID', async () => {
-    const testId = mockDatabase.findAll()[0]?.id;
+    const testId = ((await mockDatabase.findAll()) as Metadata[])[0]?.id;
 
     const GET_METADATA_BY_ID = gql`
       query GetMetadataById($id: ID!) {
@@ -55,13 +59,19 @@ describe('GraphQL API Tests', () => {
       variables: { id: testId },
     });
 
-    expect(result.errors).toBeUndefined();
-    expect(result.data?.metadataById).toBeDefined();
-    expect(result.data?.metadataById?.id).toBe(testId);
+    if (result.body.kind === 'single') {
+      const singleResult = result.body.singleResult;
+      expect(singleResult?.errors).toBeUndefined();
+      expect(singleResult?.data?.metadataById).toBeDefined();
+      expect((singleResult?.data?.metadataById as Partial<Metadata>)?.id).toBe(
+        testId,
+      );
+    }
   });
 
   it('should delete metadata by ID', async () => {
-    const testId = mockDatabase.findAll()[0]?.id;
+    const allMetadata = await mockDatabase.findAll();
+    const testId = allMetadata[0]?.id;
 
     const DELETE_METADATA_BY_ID = gql`
       mutation DeleteMetadataById($id: ID!) {
@@ -69,16 +79,24 @@ describe('GraphQL API Tests', () => {
       }
     `;
 
-    const result = await server.executeOperation({
+    const result: GraphQLResponse = await server.executeOperation({
       query: DELETE_METADATA_BY_ID,
       variables: { id: testId },
     });
 
-    expect(result.errors).toBeUndefined();
-    expect(result.data?.deleteById).toBe(true);
+    // 결과 처리: body.kind가 "single"인 경우 처리
+    if (result.body.kind === 'single') {
+      const singleResult = result.body.singleResult;
 
-    // 데이터가 삭제되었는지 확인
-    const deleted = mockDatabase.findById(testId);
-    expect(deleted).toBeUndefined();
+      expect(singleResult?.errors).toBeUndefined(); // 에러가 없어야 함
+      expect(singleResult?.data?.deleteById).toBe(true); // 삭제 성공 확인
+
+      // 데이터가 삭제되었는지 확인
+      const deleted = await mockDatabase.findById(testId);
+      expect(deleted).toBeNull(); // 삭제된 데이터는 null이어야 함
+    } else {
+      // 예상치 못한 응답 형식 처리
+      throw new Error('Unexpected incremental response');
+    }
   });
 });
