@@ -1,14 +1,13 @@
 overwrite: true
-schema: "src/graphql/schema/index.ts" # GraphQL 스키마 경로
-documents: "src/graphql/documents/**/*.graphql" # GraphQL 쿼리 문서 경로
+schema: 'src/graphql/schema/types.graphql'
+documents: 'src/graphql/documents/**/*.graphql'
 generates:
-  src/__generated__/:
-    preset: near-operation-file
-    presetConfig:
-      baseTypesPath: graphql.ts # 스키마 기반 타입 정의 경로
+  src/__generated__/graphql.ts: # 단일 파일로 모든 타입 생성
     plugins:
       - typescript
       - typescript-operations
-      - typescript-react-query
+      - typescript-resolvers
     config:
-      fetcher: "graphql-request"
+      contextType: '@/graphql/testServer#GraphQLContext'
+      avoidOptionals: true # 모든 필드를 필수로 설정
+      defaultMapper: 'Partial<{T}>' # 기본 매퍼를 Partial로 설정하여 유연성 제공

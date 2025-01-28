@@ -1,0 +1,3 @@
+mutation DeleteMetadataById($id: ID!) {
+  deleteById(id: $id)
+}
