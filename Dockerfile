@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # 종속성 설치
-RUN npm install --legacy-peer-deps && npm dedupe
+RUN npm install
 
 # 프로젝트 소스 복사
 COPY . .

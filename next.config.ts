@@ -6,8 +6,7 @@ const nextConfig: NextConfig = {
     config.externals = [...(config.externals || []), 'graphql'];
     return config;
   },
-  reactStrictMode: true,
-  swcMinify: true, // SWC를 사용한 최적화 활성화
+  reactStrictMode: true, // React Strict Mode 활성화
 };
 
 export default nextConfig;
