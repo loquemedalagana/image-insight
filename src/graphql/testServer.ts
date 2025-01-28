@@ -1,6 +1,6 @@
-import { ApolloServer } from 'apollo-server-micro';
-import { typeDefs } from '@/graphql/schema/index';
-import { resolvers } from '@/graphql/resolvers/index';
+import { ApolloServer } from '@apollo/server';
+import { typeDefs } from '@/graphql/schema';
+import { resolvers } from '@/graphql/resolvers';
 
 export const createTestServer = () => {
   return new ApolloServer({
