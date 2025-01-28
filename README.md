@@ -60,34 +60,66 @@
 
 ## 🚀 설치 및 실행 방법
 
-### 1. 클론
+### 1. Docker 사용
+
+Docker를 통해 프로젝트를 실행하려면 아래 단계를 따르세요:
+
+### **1.1 Docker 빌드**
+
+```bash
+docker build -t image-scope .
+
+```
+
+### **1.2 Docker 컨테이너 실행**
+
+```bash
+docker run -p 3000:3000 -v $(pwd):/usr/src/app image-scope
+
+```
+
+### **1.3 브라우저에서 확인**
+
+`http://localhost:3000`에 접속하여 프로젝트를 확인하세요.
+
+---
+
+### 2. 로컬 실행 (Docker 없이)
+
+### **2.1 클론**
 
 ```bash
 git clone https://github.com/image-insight.git
 cd image-insight
+
 ```
 
-### 2. 의존성 설치
+### **2.2 의존성 설치**
 
 ```bash
 npm install
+
 ```
 
-### 3. 개발 서버 실행
+### **2.3 개발 서버 실행**
 
 ```bash
 npm run dev
+
 ```
 
-### 4. 이미지 파일 관리
+### **2.4 이미지 파일 관리**
 
 - **Git LFS 활성화**:
+
   ```bash
   git lfs install
   git lfs track "*.jpg"
+
   ```
+
 - **JPG 파일 업로드**:
-  프로젝트의 `assets/images` 디렉토리에 파일 저장.
+  프로젝트의 `public/samples` 디렉토리에 파일 저장.
 
 ---
 
@@ -112,7 +144,7 @@ npm run dev
 
 ## Project Overview
 
-This project aims to **extract and manage image metadata**, focusing on a scalable system for JPG files. Users can view image lists, extract/analyze metadata, implement facial recognition and classification, and eventually expand to 3D visualization.
+This project is designed to **extract and manage image metadata**, focusing on building a scalable system for JPG files. Users can view image lists, extract/analyze metadata, implement facial recognition and classification, and eventually expand to 3D visualization.
 
 ---
 
@@ -120,31 +152,31 @@ This project aims to **extract and manage image metadata**, focusing on a scalab
 
 ### 1. Current Features
 
-- **Metadata Extraction**: Extract metadata such as capture time and camera model from JPG file lists.
-- **Git LFS Support**: Manage image files using Git LFS in the initial project phase.
+- **Metadata Extraction**: Extract metadata such as capture time, camera model, and more from JPG file lists.
+- **Git LFS Support**: Manage image files using Git LFS during the initial project phase.
 
 ### 2. Planned Features
 
 - **Image Storage**:
-  - Use Backblaze or Wasabi cloud storage, scalable up to 10TB.
+  - Use cloud storage solutions like Backblaze or Wasabi, scalable up to 10TB.
 - **Data Visualization**:
   - Provide image lists and detailed UI using Next.js + React.
-  - Perform image preprocessing and analysis with WebGPU/WebGL.
-- **Filtering by Metadata**:
-  - Filter images by camera model, capture time, and individuals.
+  - Perform image preprocessing and analysis using WebGPU/WebGL.
+- **Metadata-Based Filtering**:
+  - Filter images by camera model, capture time, or individuals.
 - **Image Classification and Processing**:
   - Facial recognition with **face-api.js**.
   - Image classification using **TensorFlow.js**.
-  - Resize and create thumbnails using **Sharp**.
-  - Extend support for CR3 format with WebAssembly.
+  - Resize and generate thumbnails using **Sharp**.
+  - Extend CR3 format support with WebAssembly.
 - **UI Features**:
-  - Gallery-style UI.
+  - Gallery-style UI for visual exploration.
   - Visualization of classification results (e.g., graphs).
 
 ### 3. Long-Term Expansion Plan
 
 - **2D to 3D Transition**:
-  - Upgrade to RTX 4090 or 5090 PC for local training and generating 3D outputs.
+  - Upgrade to RTX 4090 or 5090 for local training and generating 3D outputs.
 
 ---
 
@@ -152,52 +184,82 @@ This project aims to **extract and manage image metadata**, focusing on a scalab
 
 ### Frontend
 
-- **Next.js**: Data visualization and UI.
+- **Next.js**: For data visualization and UI components.
 - **React**: Gallery and filtering UI.
-- **WebGPU/WebGL**: Image preprocessing and analysis.
+- **WebGPU/WebGL**: For image preprocessing and analysis.
 
 ### Backend
 
-- **Node.js**: API and cloud storage integration.
-- **MongoDB**: Metadata management.
-- **Neo4j**: Classification and relational data analysis.
+- **Node.js**: For API and cloud storage integration.
+- **MongoDB**: For metadata storage and management.
+- **Neo4j**: For classification and relationship data analysis.
 
 ### Cloud Storage
 
-- **Backblaze B2** or **Wasabi**: For large-scale image file storage.
+- **Backblaze B2** or **Wasabi**: To store large-scale image files.
 
 ---
 
 ## 🚀 Setup and Run
 
-### 1. Clone Repository
+### 1. Run Using Docker
+
+### **1.1 Build the Docker Image**
+
+```bash
+docker build -t image-scope .
+
+```
+
+### **1.2 Run the Docker Container**
+
+```bash
+docker run -p 3000:3000 -v $(pwd):/usr/src/app image-scope
+
+```
+
+### **1.3 Open in Browser**
+
+Visit `http://localhost:3000` in your browser to view the project.
+
+---
+
+### 2. Run Locally (Without Docker)
+
+### **2.1 Clone the Repository**
 
 ```bash
 git clone https://github.com/image-insight.git
 cd image-insight
+
 ```
 
-### 2. Install Dependencies
+### **2.2 Install Dependencies**
 
 ```bash
 npm install
+
 ```
 
-### 3. Start Development Server
+### **2.3 Start the Development Server**
 
 ```bash
 npm run dev
+
 ```
 
-### 4. Manage Image Files
+### **2.4 Manage Image Files**
 
 - **Enable Git LFS**:
+
   ```bash
   git lfs install
   git lfs track "*.jpg"
+
   ```
+
 - **Upload JPG Files**:
-  Save files in the `assets/images` directory of the project.
+  Save files in the `public/samples` directory of the project.
 
 ---
 
@@ -211,7 +273,7 @@ npm run dev
 
 ## 📈 Future Development Roadmap
 
-1. Complete API integration with cloud storage.
+1. Complete API integration with cloud storage solutions.
 2. Build a data management system using GraphQL.
-3. Add color analysis and preprocessing with WebGPU.
-4. Develop a 3D output visualization system.
+3. Add color analysis and preprocessing using WebGPU.
+4. Develop a system for 3D visualization of outputs.
