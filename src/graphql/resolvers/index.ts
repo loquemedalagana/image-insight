@@ -3,7 +3,9 @@ import { extractMetadata } from '@/lib/extractMetadata';
 export const resolvers = {
   Query: {
     metadata: async () => {
-      return await extractMetadata();
+      const metadata = await extractMetadata();
+      console.log('Extracted Metadata:', metadata); // 디버깅용 로그
+      return metadata;
     },
   },
   /*

@@ -1,20 +1,20 @@
-# Node.js 18 LTS 이미지를 기반으로
+# Node.js 18 LTS 기반
 FROM node:18
 
 # 작업 디렉토리 설정
 WORKDIR /usr/src/app
 
-# package.json과 package-lock.json 복사
+# package.json 복사
 COPY package*.json ./
 
 # 종속성 설치
-RUN npm install
+RUN npm install --legacy-peer-deps && npm dedupe
 
 # 프로젝트 소스 복사
 COPY . .
 
-# 포트 노출 (Next.js 기본 포트)
+# Next.js 포트 노출
 EXPOSE 3000
 
-# 개발 서버 실행 (Next.js)
+# Next.js 개발 서버 실행
 CMD ["npm", "run", "dev"]
