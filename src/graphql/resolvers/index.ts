@@ -9,7 +9,7 @@ export const resolvers = {
       const metadata = await extractMetadata();
 
       // Mock DB 초기화 및 데이터 저장
-      mockDatabase.clear();
+      await mockDatabase.clear();
       metadata.forEach((item) => mockDatabase.insert(item));
 
       console.log('Extracted Metadata:', metadata); // 디버깅용 로그
