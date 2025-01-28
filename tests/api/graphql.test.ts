@@ -12,8 +12,9 @@ describe('GraphQL API Tests', () => {
     server = await createTestServer();
   });
 
-  it('should fetch all metadata', async () => {
-    const images = getAllImages('public/samples');
+  it('should fetch all metadata and match the image count', async () => {
+    // 전체 이미지 파일 가져오기
+    const images = getAllImages('public/samples'); // 파일 경로를 기반으로 전체 이미지 가져오기
 
     const GET_METADATA = gql`
       query GetMetadata {
@@ -29,16 +30,28 @@ describe('GraphQL API Tests', () => {
       }
     `;
 
-    const result = (await server.executeOperation({
+    const result = await server.executeOperation({
       query: GET_METADATA,
-    })) as GraphQLResponse;
+    });
 
-    expect(result.errors).toBeUndefined();
-    expect(result.data?.metadata).toBeInstanceOf(Array);
+    // `body.kind`가 "single"인지 확인 후 처리
+    if (result.body.kind === 'single') {
+      const singleResult = result.body.singleResult;
 
-    const metadata = result.data?.metadata;
-    expect(metadata?.length).toBeGreaterThan(0); // 데이터가 있어야 함
-    expect(metadata?.[0]).toHaveProperty('fileName'); // fileName 필드 검증
+      expect(singleResult.errors).toBeUndefined(); // 에러가 없어야 함
+
+      const metadata = singleResult.data?.metadata as Metadata[]; // 타입 단언
+      expect(metadata).toBeInstanceOf(Array); // 데이터는 배열이어야 함
+
+      // 이미지 파일 개수와 메타데이터 배열 길이 비교
+      expect(metadata?.length).toBe(images.length);
+
+      // 데이터 검증
+      expect(metadata?.[0]).toHaveProperty('fileName'); // 첫 번째 항목 검증
+    } else {
+      // 예상치 못한 응답 형식 처리
+      throw new Error('Unexpected incremental response');
+    }
   });
 
   it('should fetch metadata by ID', async () => {
