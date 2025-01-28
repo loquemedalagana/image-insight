@@ -8,12 +8,10 @@ export const resolvers = {
       return metadata;
     },
   },
-  /*
-  TODO: should be updated
   Mutation: {
-    deleteImage: async (_: any, { fileName }: { fileName: string }) => {
-      // 파일 삭제 로직
+    deleteById: async (_: any, { id }: { id: string }) => {
+      console.log('Delete Metadata by ID:', id); // 디버깅용 로그
       return true;
     },
-  }, */
+  },
 };
