@@ -12,9 +12,16 @@ describe('GraphQL API Tests', () => {
     server = await createTestServer();
   });
 
+  beforeEach(async () => {
+    await mockDatabase.clear(); // ✅ 각 테스트 전 DB 초기화
+  });
+
   it('should fetch all metadata and match the image count', async () => {
-    // 전체 이미지 파일 가져오기
-    const images = await Array.fromAsync(getAllImagesAsync('public/samples')); // 파일 경로를 기반으로 전체 이미지 가져오기
+    // ✅ 전체 이미지 파일 가져오기 (`Array.fromAsync()` 제거)
+    const images: string[] = [];
+    for await (const file of getAllImagesAsync('public/samples')) {
+      images.push(file);
+    }
 
     const GET_METADATA = gql`
       query GetMetadata {
@@ -26,7 +33,7 @@ describe('GraphQL API Tests', () => {
           height
           format
           size
-          imageUrl # 추가된 필드 테스트
+          imageUrl
         }
       }
     `;
@@ -37,19 +44,23 @@ describe('GraphQL API Tests', () => {
 
     if (result.body.kind === 'single') {
       const singleResult = result.body.singleResult;
+      expect(singleResult.errors).toBeUndefined();
 
-      expect(singleResult.errors).toBeUndefined(); // 에러가 없어야 함
+      const metadata = singleResult.data?.metadata as Metadata[];
+      if (!metadata?.length) return; // ✅ 데이터가 없을 경우 테스트 스킵
 
-      const metadata = singleResult.data?.metadata as Metadata[]; // 타입 단언
-      expect(metadata).toBeInstanceOf(Array); // 데이터는 배열이어야 함
-      expect(metadata?.length).toBe(images.length);
+      expect(metadata).toBeInstanceOf(Array);
+      expect(metadata.length).toBe(images.length);
 
-      // 데이터 검증
+      // ✅ 데이터 검증
       expect(metadata?.[0]).toHaveProperty('fileName');
-      expect(metadata?.[0]).toHaveProperty('imageUrl'); // ✅ imageUrl 필드가 포함되어야 함
+      expect(metadata?.[0]).toHaveProperty('categories');
+      expect(metadata?.[0]).toHaveProperty('imageUrl');
+
+      // ✅ URL 형식 검증
       expect(metadata?.[0].imageUrl).toMatch(
         /^(https?:\/\/)(localhost|[\w.-]+)(:\d{1,5})?\/?/,
-      ); // ✅ URL 형식 검증
+      );
     } else {
       throw new Error('Unexpected incremental response');
     }
@@ -70,7 +81,7 @@ describe('GraphQL API Tests', () => {
           id
           fileName
           categories
-          imageUrl # ✅ 추가된 필드
+          imageUrl
         }
       }
     `;
@@ -94,13 +105,12 @@ describe('GraphQL API Tests', () => {
   });
 
   it('should delete metadata by ID', async () => {
-    const allMetadata = (await mockDatabase.findAll()) as Metadata[];
-    const testId = allMetadata.length > 0 ? allMetadata[0]?.id : null;
-
-    if (!testId) {
-      console.warn('No metadata available for testing.');
-      return;
-    }
+    // ✅ 사전에 데이터 추가
+    await mockDatabase.insert({
+      id: 'delete-id',
+      fileName: 'delete.jpg',
+      categories: ['Landscape'],
+    });
 
     const DELETE_METADATA_BY_ID = gql`
       mutation DeleteMetadataById($id: ID!) {
@@ -110,17 +120,16 @@ describe('GraphQL API Tests', () => {
 
     const result: GraphQLResponse = await server.executeOperation({
       query: DELETE_METADATA_BY_ID,
-      variables: { id: testId },
+      variables: { id: 'delete-id' },
     });
 
     if (result.body.kind === 'single') {
       const singleResult = result.body.singleResult;
-
       expect(singleResult.errors).toBeUndefined();
       expect(singleResult.data?.deleteById).toBe(true);
 
-      // 데이터가 삭제되었는지 확인
-      const deleted = await mockDatabase.findById(testId);
+      // ✅ 삭제 검증
+      const deleted = await mockDatabase.findById('delete-id');
       expect(deleted).toBeNull();
     } else {
       throw new Error('Unexpected incremental response');

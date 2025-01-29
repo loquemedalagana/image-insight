@@ -6,7 +6,7 @@ test('extractMetadataFromLocal should return metadata for all sample images', as
   // 샘플 이미지 디렉토리 경로
   const samplesDir = path.join(process.cwd(), 'public/samples');
 
-  // ✅ 예상 파일 목록 가져오기 (비동기 방식)
+  // ✅ 예상 파일 목록 가져오기 (`Array.fromAsync()` 제거)
   const expectedImages: string[] = [];
   for await (const file of getAllImagesAsync(samplesDir)) {
     expectedImages.push(file);
@@ -25,7 +25,7 @@ test('extractMetadataFromLocal should return metadata for all sample images', as
 
   metadata.forEach((data, index) => {
     expect(data).toHaveProperty('fileName');
-    expect(data).toHaveProperty('category');
+    expect(data).toHaveProperty('categories');
     expect(data).toHaveProperty('width');
     expect(data).toHaveProperty('height');
     expect(data).toHaveProperty('format');
@@ -36,8 +36,8 @@ test('extractMetadataFromLocal should return metadata for all sample images', as
     const expectedFileName = path.basename(expectedImages[index]);
     expect(data.fileName).toBe(expectedFileName);
 
-    // ✅ 카테고리 검증
+    // ✅ 카테고리 검증 (배열)
     const expectedCategory = path.basename(path.dirname(expectedImages[index]));
-    expect(data.category).toBe(expectedCategory);
+    expect(data.categories).toContain(expectedCategory);
   });
 });
