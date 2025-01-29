@@ -1,23 +1,34 @@
 import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { mockDatabase } from '@/lib/mockDB';
 import { extractPhotoMetadata } from '@/utils/metadataUtils';
-import { Metadata } from '__generated__/graphql';
+import { Metadata, MetadataSearchCondition } from '__generated__/graphql';
 
 export const resolvers = {
   Query: {
-    // 전체 메타데이터 조회
-    metadata: async () => {
-      // 메타데이터 추출
-      const metadata = await extractMetadataFromLocal();
+    metadata: async (
+      _: any,
+      { searchCondition }: { searchCondition?: MetadataSearchCondition },
+    ) => {
+      const metadata = (await mockDatabase.findAll()) as Metadata[];
 
-      // Mock DB 초기화 및 데이터 저장
-      await mockDatabase.clear(); // 비동기 호출
-      for (const item of metadata) {
-        await mockDatabase.insert(item); // 비동기 삽입
+      // ✅ 검색 조건이 없거나 `{}`이면 전체 데이터 반환
+      if (!searchCondition || Object.keys(searchCondition).length === 0) {
+        return metadata;
       }
 
-      console.log('Extracted Metadata:', metadata); // 디버깅용 로그
-      return metadata;
+      return metadata.filter((item) => {
+        const categoryMatch =
+          !searchCondition.category ||
+          (Array.isArray(item.categories)
+            ? item.categories.includes(searchCondition.category)
+            : false);
+
+        const fileNameMatch =
+          !searchCondition.fileName ||
+          item.fileName.includes(searchCondition.fileName);
+
+        return categoryMatch && fileNameMatch;
+      });
     },
 
     // ID로 메타데이터 조회

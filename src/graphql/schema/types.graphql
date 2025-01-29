@@ -26,13 +26,13 @@ type Metadata {
   exif: ExifData
 }
 
-type MetadataSearchCondition {
+input MetadataSearchCondition {
   category: String
   fileName: String
 }
 
 type Query {
-  metadata(dummy: Boolean = true): [Metadata!]!
+  metadata(searchCondition: MetadataSearchCondition!): [Metadata!]!
   metadataById(id: ID!): Metadata # 특정 id로 데이터 조회
   getCategoryList: [String!]! # ✅ 카테고리를 `Set`으로 관리 (중복 제거)
 }

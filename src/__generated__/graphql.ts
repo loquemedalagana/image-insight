@@ -52,9 +52,8 @@ export type Metadata = {
 };
 
 export type MetadataSearchCondition = {
-  __typename?: 'MetadataSearchCondition';
-  category: Maybe<Scalars['String']['output']>;
-  fileName: Maybe<Scalars['String']['output']>;
+  category: InputMaybe<Scalars['String']['input']>;
+  fileName: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Mutation = {
@@ -83,7 +82,7 @@ export type Query = {
 
 
 export type QueryMetadataArgs = {
-  dummy?: InputMaybe<Scalars['Boolean']['input']>;
+  searchCondition: MetadataSearchCondition;
 };
 
 
@@ -106,7 +105,7 @@ export type GetMetadataByIdQueryVariables = Exact<{
 export type GetMetadataByIdQuery = { __typename?: 'Query', metadataById: { __typename?: 'Metadata', id: string, fileName: string, imageUrl: string, categories: Array<string>, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null } | null };
 
 export type GetMetadataQueryVariables = Exact<{
-  dummy: Scalars['Boolean']['input'];
+  searchCondition: MetadataSearchCondition;
 }>;
 
 
@@ -192,8 +191,8 @@ export type GetMetadataByIdLazyQueryHookResult = ReturnType<typeof useGetMetadat
 export type GetMetadataByIdSuspenseQueryHookResult = ReturnType<typeof useGetMetadataByIdSuspenseQuery>;
 export type GetMetadataByIdQueryResult = Apollo.QueryResult<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>;
 export const GetMetadataDocument = gql`
-    query GetMetadata($dummy: Boolean!) {
-  metadata(dummy: $dummy) {
+    query GetMetadata($searchCondition: MetadataSearchCondition!) {
+  metadata(searchCondition: $searchCondition) {
     id
     fileName
     categories
@@ -222,7 +221,7 @@ export const GetMetadataDocument = gql`
  * @example
  * const { data, loading, error } = useGetMetadataQuery({
  *   variables: {
- *      dummy: // value for 'dummy'
+ *      searchCondition: // value for 'searchCondition'
  *   },
  * });
  */
@@ -372,12 +371,6 @@ export type MetadataResolvers<ContextType = GraphQLContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type MetadataSearchConditionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MetadataSearchCondition'] = ResolversParentTypes['MetadataSearchCondition']> = {
-  category: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  fileName: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addMetadata: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<MutationAddMetadataArgs, 'categories' | 'filePath'>>;
   deleteById: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteByIdArgs, 'id'>>;
@@ -385,7 +378,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   getCategoryList: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  metadata: Resolver<Array<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataArgs, 'dummy'>>;
+  metadata: Resolver<Array<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataArgs, 'searchCondition'>>;
   metadataById: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataByIdArgs, 'id'>>;
 };
 
@@ -393,7 +386,6 @@ export type Resolvers<ContextType = GraphQLContext> = {
   ExifData: ExifDataResolvers<ContextType>;
   GPS: GpsResolvers<ContextType>;
   Metadata: MetadataResolvers<ContextType>;
-  MetadataSearchCondition: MetadataSearchConditionResolvers<ContextType>;
   Mutation: MutationResolvers<ContextType>;
   Query: QueryResolvers<ContextType>;
 };

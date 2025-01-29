@@ -11,8 +11,8 @@ query GetMetadataById($id: ID!) {
   }
 }
 
-query GetMetadata($dummy: Boolean!) {
-  metadata(dummy: $dummy) {
+query GetMetadata($searchCondition: MetadataSearchCondition!) {
+  metadata(searchCondition: $searchCondition) {
     id
     fileName
     categories
