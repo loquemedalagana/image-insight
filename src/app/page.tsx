@@ -26,15 +26,19 @@ export default async function Home() {
           {data?.metadata?.map((item, index) => (
             <div
               key={index}
-              className="break-inside-avoid mb-4 rounded-lg shadow-lg bg-white p-2"
+              className="break-inside-avoid mb-4 rounded-lg shadow-lg dark:shadow-gray-700 bg-white dark:bg-gray-800 p-2"
             >
               <img
                 src={item.imageUrl}
                 alt={item.fileName || 'Image'}
                 className="w-full h-auto rounded-md"
               />
-              <h3 className="text-lg font-bold mt-2">{item.fileName}</h3>
-              <p className="text-sm text-gray-600">{item.category}</p>
+              <h3 className="text-lg font-bold mt-2 text-gray-900 dark:text-gray-100">
+                {item.fileName}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {item.category}
+              </p>
             </div>
           ))}
         </div>
