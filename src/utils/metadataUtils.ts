@@ -1,14 +1,16 @@
 import sharp from 'sharp';
-import fs from 'fs/promises'; // 비동기 파일 작업을 위한 fs/promises 사용
+import fs from 'fs/promises';
 import path from 'path';
 import { processExif } from '@/lib/processExif';
 import { v4 as uuidv4 } from 'uuid';
 import { BASE_URL } from '@/config';
+import { mockDatabase } from '@/lib/mockDB';
+import { Metadata, Category } from '__generated__/graphql';
 
 // 개별 파일에서 메타데이터를 추출하는 함수
 export const extractPhotoMetadata = async (
   filePath: string,
-  category?: string,
+  categoryName?: string,
 ) => {
   try {
     // 파일 존재 여부 확인
@@ -23,24 +25,33 @@ export const extractPhotoMetadata = async (
     // exifr를 활용하여 EXIF 데이터 추출
     const exifData = (await processExif(filePath)) || {};
 
-    // 카테고리 자동 추출 (파일 경로 기준)
-    const resolvedCategory = category ?? path.basename(path.dirname(filePath));
+    // ✅ 카테고리 자동 추출 (파일 경로 기준)
+    const resolvedCategoryName =
+      categoryName ?? path.basename(path.dirname(filePath));
 
-    // 이미지 URL 생성 (public/samples/{category}/{fileName})
-    const relativePath = path.relative('public', filePath); // public 디렉토리 내부 경로
-    const imageUrl = `${BASE_URL}/${relativePath.replace(/\\/g, '/')}`; // URL 변환
+    // ✅ mockDB에서 카테고리 찾기 (없으면 추가)
+    let category = mockDatabase.findCategoryByName(resolvedCategoryName);
+    if (!category) {
+      category = await mockDatabase.insertCategory({
+        name: resolvedCategoryName,
+      });
+    }
 
-    // 메타데이터 객체 반환
+    // ✅ 이미지 URL 생성 (public/samples/{category}/{fileName})
+    const relativePath = path.relative('public', filePath);
+    const imageUrl = `${BASE_URL}/${relativePath.replace(/\\/g, '/')}`;
+
+    // ✅ 메타데이터 객체 반환
     return {
-      id: uuidv4(), // 고유 ID 생성
+      id: uuidv4(),
       fileName: path.basename(filePath),
-      category: resolvedCategory,
+      categories: [category], // ✅ ID + Name 구조로 저장
       width: metadata.width || 0,
       height: metadata.height || 0,
       format: metadata.format || 'unknown',
       size: stats.size,
-      exif: exifData, // 사람이 읽을 수 있는 EXIF 데이터
-      imageUrl, // 이미지 접근을 위한 URL 추가
+      exif: exifData,
+      imageUrl,
     };
   } catch (error: any) {
     if (error.code === 'ENOENT') {
