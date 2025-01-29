@@ -43,7 +43,9 @@ export default async function Home({
                 {item.fileName}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                {item.categories?.join(', ')}
+                {item.categories
+                  .map((category) => category?.name || 'Unknown')
+                  ?.join(', ')}
               </p>
             </div>
           ))}

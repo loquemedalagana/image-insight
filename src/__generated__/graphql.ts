@@ -20,6 +20,12 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type Category = {
+  __typename?: 'Category';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type ExifData = {
   __typename?: 'ExifData';
   dateTimeOriginal: Maybe<Scalars['String']['output']>;
@@ -40,7 +46,7 @@ export type Gps = {
 
 export type Metadata = {
   __typename?: 'Metadata';
-  categories: Array<Scalars['String']['output']>;
+  categories: Array<Category>;
   exif: Maybe<ExifData>;
   fileName: Scalars['String']['output'];
   format: Maybe<Scalars['String']['output']>;
@@ -52,14 +58,20 @@ export type Metadata = {
 };
 
 export type MetadataSearchCondition = {
-  category: InputMaybe<Scalars['String']['input']>;
+  categoryName: InputMaybe<Scalars['String']['input']>;
   fileName: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addCategory: Maybe<Category>;
   addMetadata: Maybe<Metadata>;
   deleteById: Maybe<Scalars['Boolean']['output']>;
+};
+
+
+export type MutationAddCategoryArgs = {
+  name: Scalars['String']['input'];
 };
 
 
@@ -75,7 +87,7 @@ export type MutationDeleteByIdArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  getCategoryList: Array<Scalars['String']['output']>;
+  getCategoryList: Array<Category>;
   metadata: Array<Metadata>;
   metadataById: Maybe<Metadata>;
 };
@@ -102,14 +114,19 @@ export type GetMetadataByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetMetadataByIdQuery = { __typename?: 'Query', metadataById: { __typename?: 'Metadata', id: string, fileName: string, imageUrl: string, categories: Array<string>, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null } | null };
+export type GetMetadataByIdQuery = { __typename?: 'Query', metadataById: { __typename?: 'Metadata', id: string, fileName: string, imageUrl: string, categories: Array<{ __typename?: 'Category', name: string }>, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null } | null };
 
 export type GetMetadataQueryVariables = Exact<{
   searchCondition: MetadataSearchCondition;
 }>;
 
 
-export type GetMetadataQuery = { __typename?: 'Query', metadata: Array<{ __typename?: 'Metadata', id: string, fileName: string, categories: Array<string>, width: number | null, height: number | null, format: string | null, size: number | null, imageUrl: string, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null }> };
+export type GetMetadataQuery = { __typename?: 'Query', metadata: Array<{ __typename?: 'Metadata', id: string, fileName: string, width: number | null, height: number | null, format: string | null, size: number | null, imageUrl: string, categories: Array<{ __typename?: 'Category', name: string }>, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null }> };
+
+export type GetCategoryListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCategoryListQuery = { __typename?: 'Query', getCategoryList: Array<{ __typename?: 'Category', id: string, name: string }> };
 
 
 export const DeleteMetadataByIdDocument = gql`
@@ -149,7 +166,9 @@ export const GetMetadataByIdDocument = gql`
     id
     fileName
     imageUrl
-    categories
+    categories {
+      name
+    }
     exif {
       make
       model
@@ -195,7 +214,9 @@ export const GetMetadataDocument = gql`
   metadata(searchCondition: $searchCondition) {
     id
     fileName
-    categories
+    categories {
+      name
+    }
     width
     height
     format
@@ -241,6 +262,46 @@ export type GetMetadataQueryHookResult = ReturnType<typeof useGetMetadataQuery>;
 export type GetMetadataLazyQueryHookResult = ReturnType<typeof useGetMetadataLazyQuery>;
 export type GetMetadataSuspenseQueryHookResult = ReturnType<typeof useGetMetadataSuspenseQuery>;
 export type GetMetadataQueryResult = Apollo.QueryResult<GetMetadataQuery, GetMetadataQueryVariables>;
+export const GetCategoryListDocument = gql`
+    query GetCategoryList {
+  getCategoryList {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetCategoryListQuery__
+ *
+ * To run a query within a React component, call `useGetCategoryListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCategoryListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCategoryListQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCategoryListQuery(baseOptions?: Apollo.QueryHookOptions<GetCategoryListQuery, GetCategoryListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCategoryListQuery, GetCategoryListQueryVariables>(GetCategoryListDocument, options);
+      }
+export function useGetCategoryListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCategoryListQuery, GetCategoryListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCategoryListQuery, GetCategoryListQueryVariables>(GetCategoryListDocument, options);
+        }
+export function useGetCategoryListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCategoryListQuery, GetCategoryListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCategoryListQuery, GetCategoryListQueryVariables>(GetCategoryListDocument, options);
+        }
+export type GetCategoryListQueryHookResult = ReturnType<typeof useGetCategoryListQuery>;
+export type GetCategoryListLazyQueryHookResult = ReturnType<typeof useGetCategoryListLazyQuery>;
+export type GetCategoryListSuspenseQueryHookResult = ReturnType<typeof useGetCategoryListSuspenseQuery>;
+export type GetCategoryListQueryResult = Apollo.QueryResult<GetCategoryListQuery, GetCategoryListQueryVariables>;
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -313,6 +374,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']['output']>>;
+  Category: ResolverTypeWrapper<Partial<Category>>;
   ExifData: ResolverTypeWrapper<Partial<ExifData>>;
   Float: ResolverTypeWrapper<Partial<Scalars['Float']['output']>>;
   GPS: ResolverTypeWrapper<Partial<Gps>>;
@@ -328,6 +390,7 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Partial<Scalars['Boolean']['output']>;
+  Category: Partial<Category>;
   ExifData: Partial<ExifData>;
   Float: Partial<Scalars['Float']['output']>;
   GPS: Partial<Gps>;
@@ -338,6 +401,12 @@ export type ResolversParentTypes = {
   Mutation: {};
   Query: {};
   String: Partial<Scalars['String']['output']>;
+};
+
+export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ExifDataResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExifData'] = ResolversParentTypes['ExifData']> = {
@@ -359,7 +428,7 @@ export type GpsResolvers<ContextType = GraphQLContext, ParentType extends Resolv
 };
 
 export type MetadataResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Metadata'] = ResolversParentTypes['Metadata']> = {
-  categories: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  categories: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   exif: Resolver<Maybe<ResolversTypes['ExifData']>, ParentType, ContextType>;
   fileName: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   format: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -372,17 +441,19 @@ export type MetadataResolvers<ContextType = GraphQLContext, ParentType extends R
 };
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addCategory: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<MutationAddCategoryArgs, 'name'>>;
   addMetadata: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<MutationAddMetadataArgs, 'categories' | 'filePath'>>;
   deleteById: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteByIdArgs, 'id'>>;
 };
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getCategoryList: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  getCategoryList: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   metadata: Resolver<Array<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataArgs, 'searchCondition'>>;
   metadataById: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataByIdArgs, 'id'>>;
 };
 
 export type Resolvers<ContextType = GraphQLContext> = {
+  Category: CategoryResolvers<ContextType>;
   ExifData: ExifDataResolvers<ContextType>;
   GPS: GpsResolvers<ContextType>;
   Metadata: MetadataResolvers<ContextType>;

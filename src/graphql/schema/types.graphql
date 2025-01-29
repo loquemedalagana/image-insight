@@ -1,3 +1,8 @@
+type Category {
+  id: ID!
+  name: String!
+}
+
 type GPS {
   latitude: Float
   longitude: Float
@@ -17,7 +22,7 @@ type ExifData {
 type Metadata {
   id: ID!
   fileName: String!
-  categories: [String!]! # ✅ 단일 `category` 대신 다중 카테고리 `categories`
+  categories: [Category!]! # ✅ 단일 `category` 대신 다중 카테고리 `categories`
   imageUrl: String!
   width: Int
   height: Int
@@ -27,14 +32,14 @@ type Metadata {
 }
 
 input MetadataSearchCondition {
-  category: String
+  categoryName: String
   fileName: String
 }
 
 type Query {
   metadata(searchCondition: MetadataSearchCondition!): [Metadata!]!
   metadataById(id: ID!): Metadata # 특정 id로 데이터 조회
-  getCategoryList: [String!]! # ✅ 카테고리를 `Set`으로 관리 (중복 제거)
+  getCategoryList: [Category!]! # ✅ 카테고리를 `Set`으로 관리 (중복 제거)
 }
 
 type Mutation {
@@ -44,4 +49,5 @@ type Mutation {
     filePath: String!
     categories: [String!]! # ✅ 여러 개의 카테고리를 받을 수 있도록 수정
   ): Metadata
+  addCategory(name: String!): Category # ✅ 새로운 카테고리를 추가하는 Mutation
 }
