@@ -6,27 +6,22 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { mockDatabase } from '@/lib/mockDB';
 
-// ✅ 서버 시작 시 데이터 초기화
+/** ✅ 서버 시작 시 한 번만 실행되는 데이터 초기화 함수 */
 async function initializeDatabase() {
   console.log('🚀 Initializing database from local files...');
 
   const metadata = await extractMetadataFromLocal();
   await mockDatabase.clear(); // 기존 데이터 제거
-  await mockDatabase.initializeDatabase(metadata); // ✅ 데이터 삽입
-
-  console.log(`✅ Database initialized with ${metadata.length} items.`);
-}
-
-// ✅ Apollo Server 생성
-export const createServer = async () => {
-  if (!mockDatabase.isReady) {
-    await initializeDatabase(); // 🚀 서버가 준비되지 않았다면 초기화 실행
+  for (const item of metadata) {
+    await mockDatabase.insert(item);
   }
 
-  return new ApolloServer<{
-    req: NextApiRequest;
-    res: NextApiResponse;
-  }>({
+  console.log(`✅ Loaded ${metadata.length} files into mock database`);
+}
+
+/** ✅ Apollo Server 인스턴스 생성 (제네릭 타입 제거) */
+export const createServer = (): ApolloServer => {
+  return new ApolloServer({
     typeDefs,
     resolvers,
     csrfPrevention: true,
@@ -35,16 +30,25 @@ export const createServer = async () => {
   });
 };
 
-// ✅ Next.js API 핸들러 생성
+/** ✅ Next.js와 Apollo Server 통합 핸들러 */
 export const createHandler = async () => {
-  const server = await createServer();
+  const server = createServer(); // ✅ `await` 제거하여 동기적으로 실행
+
   return startServerAndCreateNextHandler(server, {
     context: async (integrationContext) => {
       const { req, res } = integrationContext as unknown as {
         req: NextApiRequest;
         res: NextApiResponse;
       };
+
+      // ✅ Next.js 요청 객체가 아닐 수도 있으므로 안전하게 처리
+      const headers = (req.headers as Record<string, string | undefined>) || {};
+      req.headers['authorization'] = headers['authorization'] || '';
+
       return { req, res };
     },
   });
 };
+
+// ✅ 서버가 처음 실행될 때 데이터 초기화
+initializeDatabase().catch(console.error);
