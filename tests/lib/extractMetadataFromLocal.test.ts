@@ -1,28 +1,28 @@
 import path from 'path';
 import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
-import { getAllImages } from '@/utils/fileUtils';
+import { getAllImagesAsync } from '@/utils/fileUtils';
 
 test('extractMetadataFromLocal should return metadata for all sample images', async () => {
   // 샘플 이미지 디렉토리 경로
   const samplesDir = path.join(process.cwd(), 'public/samples');
 
-  // 예상 파일 목록 가져오기
-  const expectedImages = getAllImages(samplesDir);
+  // ✅ 예상 파일 목록 가져오기 (비동기 방식으로 변경)
+  const expectedImages = await Array.fromAsync(getAllImagesAsync(samplesDir)));
 
   // `extractMetadataFromLocal` 결과 가져오기
   const metadata = await extractMetadataFromLocal();
 
-  // 로그로 확인
+  // ✅ 로그로 확인
   console.log(`Expected file count: ${expectedImages.length}`);
   console.log(`Extracted metadata count: ${metadata.length}`);
 
-  // 테스트: 메타데이터 배열 반환
+  // ✅ 테스트: 메타데이터 배열 반환
   expect(metadata).toBeInstanceOf(Array);
 
-  // 테스트: 파일 개수와 메타데이터 개수가 동일
+  // ✅ 테스트: 파일 개수와 메타데이터 개수가 동일
   expect(metadata.length).toBe(expectedImages.length);
 
-  // 테스트: 각 메타데이터 필드 확인
+  // ✅ 테스트: 각 메타데이터 필드 확인
   metadata.forEach((data, index) => {
     expect(data).toHaveProperty('fileName');
     expect(data).toHaveProperty('category');
@@ -32,11 +32,11 @@ test('extractMetadataFromLocal should return metadata for all sample images', as
     expect(data).toHaveProperty('size');
     expect(data).toHaveProperty('exif');
 
-    // 파일 이름이 올바른지 확인
+    // ✅ 파일 이름이 올바른지 확인
     const expectedFileName = path.basename(expectedImages[index]);
     expect(data.fileName).toBe(expectedFileName);
 
-    // 카테고리가 올바른지 확인 (디렉토리 이름 기반)
+    // ✅ 카테고리가 올바른지 확인 (디렉토리 이름 기반)
     const expectedCategory = path.basename(path.dirname(expectedImages[index]));
     expect(data.category).toBe(expectedCategory);
   });
