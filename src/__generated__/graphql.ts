@@ -40,7 +40,7 @@ export type Gps = {
 
 export type Metadata = {
   __typename?: 'Metadata';
-  category: Scalars['String']['output'];
+  categories: Array<Scalars['String']['output']>;
   exif: Maybe<ExifData>;
   fileName: Scalars['String']['output'];
   format: Maybe<Scalars['String']['output']>;
@@ -51,6 +51,12 @@ export type Metadata = {
   width: Maybe<Scalars['Int']['output']>;
 };
 
+export type MetadataSearchCondition = {
+  __typename?: 'MetadataSearchCondition';
+  category: Maybe<Scalars['String']['output']>;
+  fileName: Maybe<Scalars['String']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addMetadata: Maybe<Metadata>;
@@ -59,7 +65,7 @@ export type Mutation = {
 
 
 export type MutationAddMetadataArgs = {
-  category: Scalars['String']['input'];
+  categories: Array<Scalars['String']['input']>;
   filePath: Scalars['String']['input'];
 };
 
@@ -70,6 +76,7 @@ export type MutationDeleteByIdArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  getCategoryList: Array<Scalars['String']['output']>;
   metadata: Array<Metadata>;
   metadataById: Maybe<Metadata>;
 };
@@ -96,14 +103,14 @@ export type GetMetadataByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetMetadataByIdQuery = { __typename?: 'Query', metadataById: { __typename?: 'Metadata', id: string, fileName: string, imageUrl: string, category: string, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null } | null };
+export type GetMetadataByIdQuery = { __typename?: 'Query', metadataById: { __typename?: 'Metadata', id: string, fileName: string, imageUrl: string, categories: Array<string>, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null } | null };
 
 export type GetMetadataQueryVariables = Exact<{
   dummy: Scalars['Boolean']['input'];
 }>;
 
 
-export type GetMetadataQuery = { __typename?: 'Query', metadata: Array<{ __typename?: 'Metadata', id: string, fileName: string, category: string, width: number | null, height: number | null, format: string | null, size: number | null, imageUrl: string, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null }> };
+export type GetMetadataQuery = { __typename?: 'Query', metadata: Array<{ __typename?: 'Metadata', id: string, fileName: string, categories: Array<string>, width: number | null, height: number | null, format: string | null, size: number | null, imageUrl: string, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null }> };
 
 
 export const DeleteMetadataByIdDocument = gql`
@@ -143,7 +150,7 @@ export const GetMetadataByIdDocument = gql`
     id
     fileName
     imageUrl
-    category
+    categories
     exif {
       make
       model
@@ -189,7 +196,7 @@ export const GetMetadataDocument = gql`
   metadata(dummy: $dummy) {
     id
     fileName
-    category
+    categories
     width
     height
     format
@@ -313,6 +320,7 @@ export type ResolversTypes = {
   ID: ResolverTypeWrapper<Partial<Scalars['ID']['output']>>;
   Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
   Metadata: ResolverTypeWrapper<Partial<Metadata>>;
+  MetadataSearchCondition: ResolverTypeWrapper<Partial<MetadataSearchCondition>>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
@@ -327,6 +335,7 @@ export type ResolversParentTypes = {
   ID: Partial<Scalars['ID']['output']>;
   Int: Partial<Scalars['Int']['output']>;
   Metadata: Partial<Metadata>;
+  MetadataSearchCondition: Partial<MetadataSearchCondition>;
   Mutation: {};
   Query: {};
   String: Partial<Scalars['String']['output']>;
@@ -351,7 +360,7 @@ export type GpsResolvers<ContextType = GraphQLContext, ParentType extends Resolv
 };
 
 export type MetadataResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Metadata'] = ResolversParentTypes['Metadata']> = {
-  category: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  categories: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   exif: Resolver<Maybe<ResolversTypes['ExifData']>, ParentType, ContextType>;
   fileName: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   format: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -363,12 +372,19 @@ export type MetadataResolvers<ContextType = GraphQLContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MetadataSearchConditionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MetadataSearchCondition'] = ResolversParentTypes['MetadataSearchCondition']> = {
+  category: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  fileName: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  addMetadata: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<MutationAddMetadataArgs, 'category' | 'filePath'>>;
+  addMetadata: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<MutationAddMetadataArgs, 'categories' | 'filePath'>>;
   deleteById: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteByIdArgs, 'id'>>;
 };
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getCategoryList: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   metadata: Resolver<Array<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataArgs, 'dummy'>>;
   metadataById: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataByIdArgs, 'id'>>;
 };
@@ -377,6 +393,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   ExifData: ExifDataResolvers<ContextType>;
   GPS: GpsResolvers<ContextType>;
   Metadata: MetadataResolvers<ContextType>;
+  MetadataSearchCondition: MetadataSearchConditionResolvers<ContextType>;
   Mutation: MutationResolvers<ContextType>;
   Query: QueryResolvers<ContextType>;
 };

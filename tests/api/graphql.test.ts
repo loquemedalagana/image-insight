@@ -21,7 +21,7 @@ describe('GraphQL API Tests', () => {
         metadata {
           id
           fileName
-          category
+          categories
           width
           height
           format
@@ -69,7 +69,7 @@ describe('GraphQL API Tests', () => {
         metadataById(id: $id) {
           id
           fileName
-          category
+          categories
           imageUrl # ✅ 추가된 필드
         }
       }
