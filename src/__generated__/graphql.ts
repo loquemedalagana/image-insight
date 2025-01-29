@@ -43,6 +43,7 @@ export type Metadata = {
   format: Maybe<Scalars['String']['output']>;
   height: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
+  imageUrl: Scalars['String']['output'];
   size: Maybe<Scalars['Int']['output']>;
   width: Maybe<Scalars['Int']['output']>;
 };
@@ -216,6 +217,7 @@ export type MetadataResolvers<ContextType = GraphQLContext, ParentType extends R
   format: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   height: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  imageUrl: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   size: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   width: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
