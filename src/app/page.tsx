@@ -4,14 +4,20 @@ import {
   GetMetadataQuery,
   GetMetadataQueryVariables,
   Exact,
+  MetadataSearchCondition,
 } from '__generated__/graphql';
 import { ApolloError, QueryResult } from '@apollo/client';
 import ApolloErrorPageComponent from '@/components/error/ApolloErrorPageComponent';
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: MetadataSearchCondition;
+  // TODO: page, size, sort, etc.
+}) {
   try {
     const queryVariables: GetMetadataQueryVariables = {
-      dummy: true,
+      searchCondition: searchParams,
     };
 
     const { data } = (await client.query({
@@ -37,7 +43,9 @@ export default async function Home() {
                 {item.fileName}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                {item.category}
+                {item.categories
+                  .map((category) => category?.name || 'Unknown')
+                  ?.join(', ')}
               </p>
             </div>
           ))}
