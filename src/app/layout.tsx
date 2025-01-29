@@ -27,10 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100`}
       >
         <div className="flex flex-col min-h-screen">
-          <header className="h-20 flex items-center justify-center bg-gray-100 shadow-md">
+          {/* 헤더 */}
+          <header className="h-20 flex items-center justify-center bg-white dark:bg-gray-800 shadow-md">
             <h1 className="text-xl font-bold">Image Insight</h1>
           </header>
 
@@ -39,7 +40,8 @@ export default function RootLayout({
             {children}
           </div>
 
-          <footer className="h-20 flex gap-6 flex-wrap items-center justify-center bg-gray-100 mt-8">
+          {/* 푸터 */}
+          <footer className="h-20 flex gap-6 flex-wrap items-center justify-center bg-white dark:bg-gray-800 mt-8">
             <div className="text-center">
               <p>
                 © {new Date().getFullYear()} Image Insight by SWK. All rights
