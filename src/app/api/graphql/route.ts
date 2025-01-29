@@ -4,24 +4,17 @@ let handler: any;
 
 async function getHandler() {
   if (!handler) {
-    handler = await createHandler(); // ✅ 핸들러를 한 번만 생성하여 저장
+    handler = await createHandler();
   }
   return handler;
 }
 
-export const GET = async (req: Request, res: Response) => {
+export const GET = async (req: Request) => {
   const handler = await getHandler();
-  return handler(req, res);
+  return handler(req); // ✅ res 제거
 };
 
-export const POST = async (req: Request, res: Response) => {
+export const POST = async (req: Request) => {
   const handler = await getHandler();
-  return handler(req, res);
-};
-
-// ✅ Next.js 설정 (Body Parser 비활성화)
-export const config = {
-  api: {
-    bodyParser: false,
-  },
+  return handler(req); // ✅ res 제거
 };
