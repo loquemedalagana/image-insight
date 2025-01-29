@@ -20,16 +20,16 @@ export default async function Home() {
     })) as QueryResult<GetMetadataQuery, Exact<{ [key: string]: never }>>;
 
     return (
-      <main className="flex flex-col gap-8 items-center sm:items-start p-4">
+      <main className="flex flex-col gap-8 items-center sm:items-start p-4 w-full min-h-screen">
         {/* Masonry 레이아웃 */}
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
+        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 w-full">
           {data?.metadata?.map((item, index) => (
             <div
               key={index}
               className="break-inside-avoid mb-4 rounded-lg shadow-lg bg-white p-2"
             >
               <img
-                src={item.imageUrl} // 가정: `metadata`에 `imageUrl`이 있다고 가정
+                src={item.imageUrl}
                 alt={item.fileName || 'Image'}
                 className="w-full h-auto rounded-md"
               />
