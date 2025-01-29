@@ -6,8 +6,14 @@ generates:
     plugins:
       - typescript
       - typescript-operations
+      - typescript-react-apollo # ✅ 추가 (Apollo Client 훅 자동 생성)
       - typescript-resolvers
     config:
       contextType: '@/graphql/testServer#GraphQLContext'
       avoidOptionals: true # 모든 필드를 필수로 설정
       defaultMapper: 'Partial<{T}>' # 기본 매퍼를 Partial로 설정하여 유연성 제공
+      withHooks: true # ✅ Apollo Client 훅 자동 생성 (useQuery, useLazyQuery 등)
+      withHOC: false
+      withComponent: false
+      documentMode: graphQLTag # ✅ Document 자동 생성 활성화
+
