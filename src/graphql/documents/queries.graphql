@@ -3,7 +3,7 @@ query GetMetadataById($id: ID!) {
     id
     fileName
     imageUrl
-    category
+    categories
     exif {
       make
       model
@@ -15,7 +15,7 @@ query GetMetadata($dummy: Boolean!) {
   metadata(dummy: $dummy) {
     id
     fileName
-    category
+    categories
     width
     height
     format

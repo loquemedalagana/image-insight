@@ -26,19 +26,28 @@ export const resolvers = {
       console.log('Metadata by ID:', id, metadata); // 디버깅용 로그
       return metadata || null; // 데이터가 없으면 null 반환
     },
+
+    // ✅ 카테고리 목록 조회 추가
+    getCategoryList: async () => {
+      const metadata = (await mockDatabase.findAll()) as Metadata[];
+      const categories = [
+        ...new Set(metadata.flatMap((item) => item.categories)),
+      ]; // ✅ 중복 제거
+      return categories;
+    },
   },
 
   Mutation: {
     addMetadata: async (
       _: any,
-      { filePath, category }: { filePath: string; category: string },
+      { filePath, categories }: { filePath: string; categories: string[] },
     ) => {
       try {
-        // 공통 함수 호출
-        const photo = await extractPhotoMetadata(filePath, category);
-
-        // DB에 저장
-        const insertedPhoto = await mockDatabase.insert(photo);
+        const photo = await extractPhotoMetadata(filePath);
+        const insertedPhoto = await mockDatabase.insert({
+          ...photo,
+          categories,
+        });
 
         console.log('Metadata added:', insertedPhoto);
         return insertedPhoto;

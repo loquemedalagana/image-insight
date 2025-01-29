@@ -15,10 +15,10 @@ type ExifData {
 }
 
 type Metadata {
-  id: ID! # MongoDB ObjectId를 위한 필드 추가
+  id: ID!
   fileName: String!
-  category: String!
-  imageUrl: String! # 추가: URL 필드
+  categories: [String!]! # ✅ 단일 `category` 대신 다중 카테고리 `categories`
+  imageUrl: String!
   width: Int
   height: Int
   format: String
@@ -26,16 +26,22 @@ type Metadata {
   exif: ExifData
 }
 
+type MetadataSearchCondition {
+  category: String
+  fileName: String
+}
+
 type Query {
   metadata(dummy: Boolean = true): [Metadata!]!
   metadataById(id: ID!): Metadata # 특정 id로 데이터 조회
+  getCategoryList: [String!]! # ✅ 카테고리를 `Set`으로 관리 (중복 제거)
 }
 
 type Mutation {
   deleteById(id: ID!): Boolean # 특정 id로 데이터 삭제
   # 새로운 메타데이터를 추가하는 Mutation
   addMetadata(
-    filePath: String! # 파일 경로
-    category: String! # 카테고리
+    filePath: String!
+    categories: [String!]! # ✅ 여러 개의 카테고리를 받을 수 있도록 수정
   ): Metadata
 }

@@ -30,7 +30,9 @@ export const extractMetadataFromLocal = async () => {
   for await (const { filePath, category } of walkDirAsync(samplesDir)) {
     try {
       const photo = await extractPhotoMetadata(filePath);
-      photos.push({ ...photo, category });
+      const categories = category ? [category] : [];
+
+      photos.push({ ...photo, categories });
     } catch (error: any) {
       console.error(`Failed to process file: ${filePath}`, error.message);
     }
