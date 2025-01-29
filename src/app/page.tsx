@@ -49,15 +49,17 @@ export default async function Home() {
     const categories = data?.getCategoryList || [];
 
     return (
-      <main className="flex flex-col gap-8 items-center sm:items-start p-4 w-full min-h-screen">
-        {/* ✅ 초기 데이터만 `CategoryFilter`에 전달 (추가 쿼리 필요 없음) */}
-        {data?.getCategoryList ? (
-          <CategoryFilter
-            initialCategories={data.getCategoryList as Category[]}
-          />
-        ) : (
-          <p>🚀 No categories found.</p>
-        )}
+      <main className="flex flex-col gap-8 items-center p-4 w-full min-h-screen">
+        {/* ✅ CategoryFilter를 중앙 정렬 */}
+        <div className="flex justify-center w-full">
+          {data?.getCategoryList ? (
+            <CategoryFilter
+              initialCategories={data.getCategoryList as Category[]}
+            />
+          ) : (
+            <p className="text-center w-full">🚀 No categories found.</p>
+          )}
+        </div>
         {/* ✅ MasonryImageList도 여기에 추가 가능 */}
         {/* <MasonryImageList images={...} /> */}
       </main>

@@ -25,34 +25,36 @@ export default function CategoryFilter({ initialCategories }: Props) {
   };
 
   return (
-    <div className="flex justify-center gap-2 p-4 border-b border-gray-300 dark:border-gray-700">
-      <button
-        onClick={() => handleFilterChange('')}
-        className={`px-3 py-1 rounded transition-colors duration-200
-          ${
-            !selectedCategory
-              ? 'bg-blue-500 text-white dark:bg-blue-400 dark:text-gray-900'
-              : 'bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
-          }
-        `}
-      >
-        All
-      </button>
-      {categories.map((category) => (
+    <div className="w-full flex justify-center">
+      <div className="flex gap-2 p-4 border-b border-gray-300 dark:border-gray-700 text-center">
         <button
-          key={category.id}
-          onClick={() => handleFilterChange(category.name)}
+          onClick={() => handleFilterChange('')}
           className={`px-3 py-1 rounded transition-colors duration-200
             ${
-              selectedCategory === category.name
+              !selectedCategory
                 ? 'bg-blue-500 text-white dark:bg-blue-400 dark:text-gray-900'
                 : 'bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
             }
           `}
         >
-          {category.name}
+          All
         </button>
-      ))}
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => handleFilterChange(category.name)}
+            className={`px-3 py-1 rounded transition-colors duration-200
+              ${
+                selectedCategory === category.name
+                  ? 'bg-blue-500 text-white dark:bg-blue-400 dark:text-gray-900'
+                  : 'bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+              }
+            `}
+          >
+            {category.name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
