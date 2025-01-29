@@ -1,43 +1,81 @@
-import { extractMetadata } from '@/lib/extractMetadata';
+import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { mockDatabase } from '@/lib/mockDB';
 import { extractPhotoMetadata } from '@/utils/metadataUtils';
+import {
+  Metadata,
+  MetadataSearchCondition,
+  Category,
+} from '__generated__/graphql';
 
 export const resolvers = {
   Query: {
-    // 전체 메타데이터 조회
-    metadata: async () => {
-      // 메타데이터 추출
-      const metadata = await extractMetadata();
+    metadata: async (
+      _: any,
+      { searchCondition }: { searchCondition?: MetadataSearchCondition },
+    ) => {
+      const metadata = (await mockDatabase.findAll()) as Metadata[];
 
-      // Mock DB 초기화 및 데이터 저장
-      await mockDatabase.clear(); // 비동기 호출
-      for (const item of metadata) {
-        await mockDatabase.insert(item); // 비동기 삽입
+      // ✅ 검색 조건이 없으면 전체 데이터 반환
+      if (!searchCondition || Object.keys(searchCondition).length === 0) {
+        return metadata;
       }
 
-      console.log('Extracted Metadata:', metadata); // 디버깅용 로그
-      return metadata;
+      return metadata.filter((item) => {
+        const categoryMatch =
+          !searchCondition.categoryName ||
+          item.categories.some(
+            (category) => category.name === searchCondition.categoryName,
+          );
+
+        const fileNameMatch =
+          !searchCondition.fileName ||
+          item.fileName.includes(searchCondition.fileName);
+
+        return categoryMatch && fileNameMatch;
+      });
     },
 
     // ID로 메타데이터 조회
     metadataById: async (_: any, { id }: { id: string }) => {
-      const metadata = await mockDatabase.findById(id); // Mock DB에서 비동기 검색
-      console.log('Metadata by ID:', id, metadata); // 디버깅용 로그
-      return metadata || null; // 데이터가 없으면 null 반환
+      const metadata = await mockDatabase.findById(id);
+      console.log('Metadata by ID:', id, metadata);
+      return metadata || null;
+    },
+
+    // ✅ 카테고리 목록 조회 추가 (id, name 포함)
+    getCategoryList: async () => {
+      const metadata = (await mockDatabase.findAll()) as Metadata[];
+      const categoryMap = new Map<string, Category>();
+
+      metadata.forEach((item) => {
+        item.categories.forEach((category) => {
+          if (!categoryMap.has(category.id)) {
+            categoryMap.set(category.id, category);
+          }
+        });
+      });
+
+      return Array.from(categoryMap.values()); // ✅ 중복 제거 후 반환
     },
   },
 
   Mutation: {
     addMetadata: async (
       _: any,
-      { filePath, category }: { filePath: string; category: string },
+      { filePath, categoryIds }: { filePath: string; categoryIds: string[] },
     ) => {
       try {
-        // 공통 함수 호출
-        const photo = await extractPhotoMetadata(filePath, category);
+        const photo = await extractPhotoMetadata(filePath);
 
-        // DB에 저장
-        const insertedPhoto = await mockDatabase.insert(photo);
+        // ✅ categoryIds를 기반으로 실제 카테고리 객체 찾기
+        const categories = categoryIds
+          .map((id) => mockDatabase.findCategoryById(id))
+          .filter((category) => category !== null) as Category[];
+
+        const insertedPhoto = await mockDatabase.insert({
+          ...photo,
+          categories,
+        } as Metadata);
 
         console.log('Metadata added:', insertedPhoto);
         return insertedPhoto;
@@ -46,11 +84,24 @@ export const resolvers = {
         throw new Error('Failed to add metadata');
       }
     },
+
+    // ✅ 새로운 카테고리 추가 기능
+    addCategory: async (_: any, { name }: { name: string }) => {
+      const existingCategory = mockDatabase.findCategoryByName(name);
+      if (existingCategory) {
+        return existingCategory; // ✅ 이미 존재하는 경우 반환
+      }
+
+      const newCategory = await mockDatabase.insertCategory({ name });
+      console.log('Category added:', newCategory);
+      return newCategory;
+    },
+
     // ID로 메타데이터 삭제
     deleteById: async (_: any, { id }: { id: string }) => {
-      const success = await mockDatabase.deleteById(id); // Mock DB에서 비동기 삭제
-      console.log('Delete Metadata by ID:', id, success); // 디버깅용 로그
-      return success; // 삭제 성공 여부 반환
+      const success = await mockDatabase.deleteById(id);
+      console.log('Delete Metadata by ID:', id, success);
+      return success;
     },
   },
 };

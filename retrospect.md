@@ -87,7 +87,7 @@ function* walkDir(dir: string): Generator<string> {
 }
 
 // 디렉토리에서 모든 파일 메타데이터를 추출
-export const extractMetadata = async () => {
+export const extractMetadataFromLocal = async () => {
   const photos = [];
 
   for (const filePath of walkDir(samplesDir)) {

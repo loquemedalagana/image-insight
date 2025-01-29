@@ -3,7 +3,9 @@ query GetMetadataById($id: ID!) {
     id
     fileName
     imageUrl
-    category
+    categories {
+      name
+    }
     exif {
       make
       model
@@ -11,11 +13,13 @@ query GetMetadataById($id: ID!) {
   }
 }
 
-query GetMetadata($dummy: Boolean!) {
-  metadata(dummy: $dummy) {
+query GetMetadata($searchCondition: MetadataSearchCondition!) {
+  metadata(searchCondition: $searchCondition) {
     id
     fileName
-    category
+    categories {
+      name
+    }
     width
     height
     format
@@ -25,5 +29,12 @@ query GetMetadata($dummy: Boolean!) {
       make
       model
     }
+  }
+}
+
+query GetCategoryList {
+  getCategoryList {
+    id
+    name
   }
 }

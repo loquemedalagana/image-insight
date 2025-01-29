@@ -1,7 +1,7 @@
 import { ApolloServer } from '@apollo/server';
 import { typeDefs } from '@/graphql/schema';
 import { resolvers } from '@/graphql/resolvers';
-import { extractMetadata } from '@/lib/extractMetadata';
+import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 
 export interface GraphQLContext {
   dataSources?: {
@@ -10,7 +10,7 @@ export interface GraphQLContext {
 }
 
 export const createTestServer = async () => {
-  await extractMetadata();
+  await extractMetadataFromLocal();
 
   return new ApolloServer({
     typeDefs,
