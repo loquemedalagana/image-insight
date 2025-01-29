@@ -1,5 +1,7 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { GraphQLContext } from '@/graphql/testServer';
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -8,6 +10,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
+const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -72,6 +75,11 @@ export type Query = {
 };
 
 
+export type QueryMetadataArgs = {
+  dummy?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type QueryMetadataByIdArgs = {
   id: Scalars['ID']['input'];
 };
@@ -88,13 +96,145 @@ export type GetMetadataByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetMetadataByIdQuery = { __typename?: 'Query', metadataById: { __typename?: 'Metadata', id: string, fileName: string, category: string } | null };
+export type GetMetadataByIdQuery = { __typename?: 'Query', metadataById: { __typename?: 'Metadata', id: string, fileName: string, imageUrl: string, category: string, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null } | null };
 
-export type GetMetadataQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetMetadataQueryVariables = Exact<{
+  dummy: Scalars['Boolean']['input'];
+}>;
 
 
-export type GetMetadataQuery = { __typename?: 'Query', metadata: Array<{ __typename?: 'Metadata', id: string, fileName: string, category: string, width: number | null, height: number | null, format: string | null, size: number | null, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null }> };
+export type GetMetadataQuery = { __typename?: 'Query', metadata: Array<{ __typename?: 'Metadata', id: string, fileName: string, category: string, width: number | null, height: number | null, format: string | null, size: number | null, imageUrl: string, exif: { __typename?: 'ExifData', make: string | null, model: string | null } | null }> };
 
+
+export const DeleteMetadataByIdDocument = gql`
+    mutation DeleteMetadataById($id: ID!) {
+  deleteById(id: $id)
+}
+    `;
+export type DeleteMetadataByIdMutationFn = Apollo.MutationFunction<DeleteMetadataByIdMutation, DeleteMetadataByIdMutationVariables>;
+
+/**
+ * __useDeleteMetadataByIdMutation__
+ *
+ * To run a mutation, you first call `useDeleteMetadataByIdMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteMetadataByIdMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteMetadataByIdMutation, { data, loading, error }] = useDeleteMetadataByIdMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteMetadataByIdMutation(baseOptions?: Apollo.MutationHookOptions<DeleteMetadataByIdMutation, DeleteMetadataByIdMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteMetadataByIdMutation, DeleteMetadataByIdMutationVariables>(DeleteMetadataByIdDocument, options);
+      }
+export type DeleteMetadataByIdMutationHookResult = ReturnType<typeof useDeleteMetadataByIdMutation>;
+export type DeleteMetadataByIdMutationResult = Apollo.MutationResult<DeleteMetadataByIdMutation>;
+export type DeleteMetadataByIdMutationOptions = Apollo.BaseMutationOptions<DeleteMetadataByIdMutation, DeleteMetadataByIdMutationVariables>;
+export const GetMetadataByIdDocument = gql`
+    query GetMetadataById($id: ID!) {
+  metadataById(id: $id) {
+    id
+    fileName
+    imageUrl
+    category
+    exif {
+      make
+      model
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetMetadataByIdQuery__
+ *
+ * To run a query within a React component, call `useGetMetadataByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetadataByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetadataByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetMetadataByIdQuery(baseOptions: Apollo.QueryHookOptions<GetMetadataByIdQuery, GetMetadataByIdQueryVariables> & ({ variables: GetMetadataByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>(GetMetadataByIdDocument, options);
+      }
+export function useGetMetadataByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>(GetMetadataByIdDocument, options);
+        }
+export function useGetMetadataByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>(GetMetadataByIdDocument, options);
+        }
+export type GetMetadataByIdQueryHookResult = ReturnType<typeof useGetMetadataByIdQuery>;
+export type GetMetadataByIdLazyQueryHookResult = ReturnType<typeof useGetMetadataByIdLazyQuery>;
+export type GetMetadataByIdSuspenseQueryHookResult = ReturnType<typeof useGetMetadataByIdSuspenseQuery>;
+export type GetMetadataByIdQueryResult = Apollo.QueryResult<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>;
+export const GetMetadataDocument = gql`
+    query GetMetadata($dummy: Boolean!) {
+  metadata(dummy: $dummy) {
+    id
+    fileName
+    category
+    width
+    height
+    format
+    size
+    imageUrl
+    exif {
+      make
+      model
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetMetadataQuery__
+ *
+ * To run a query within a React component, call `useGetMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetadataQuery({
+ *   variables: {
+ *      dummy: // value for 'dummy'
+ *   },
+ * });
+ */
+export function useGetMetadataQuery(baseOptions: Apollo.QueryHookOptions<GetMetadataQuery, GetMetadataQueryVariables> & ({ variables: GetMetadataQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMetadataQuery, GetMetadataQueryVariables>(GetMetadataDocument, options);
+      }
+export function useGetMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMetadataQuery, GetMetadataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMetadataQuery, GetMetadataQueryVariables>(GetMetadataDocument, options);
+        }
+export function useGetMetadataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMetadataQuery, GetMetadataQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMetadataQuery, GetMetadataQueryVariables>(GetMetadataDocument, options);
+        }
+export type GetMetadataQueryHookResult = ReturnType<typeof useGetMetadataQuery>;
+export type GetMetadataLazyQueryHookResult = ReturnType<typeof useGetMetadataLazyQuery>;
+export type GetMetadataSuspenseQueryHookResult = ReturnType<typeof useGetMetadataSuspenseQuery>;
+export type GetMetadataQueryResult = Apollo.QueryResult<GetMetadataQuery, GetMetadataQueryVariables>;
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -229,7 +369,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
 };
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  metadata: Resolver<Array<ResolversTypes['Metadata']>, ParentType, ContextType>;
+  metadata: Resolver<Array<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataArgs, 'dummy'>>;
   metadataById: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataByIdArgs, 'id'>>;
 };
 
