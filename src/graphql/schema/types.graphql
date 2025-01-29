@@ -18,6 +18,7 @@ type Metadata {
   id: ID! # MongoDB ObjectId를 위한 필드 추가
   fileName: String!
   category: String!
+  imageUrl: String! # 추가: URL 필드
   width: Int
   height: Int
   format: String
