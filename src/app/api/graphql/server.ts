@@ -6,24 +6,23 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { mockDatabase } from '@/lib/mockDB';
 
-// ✅ 서버 시작 시 한 번만 실행되는 데이터 초기화 함수
+// ✅ 서버 시작 시 데이터 초기화
 async function initializeDatabase() {
   console.log('🚀 Initializing database from local files...');
 
   const metadata = await extractMetadataFromLocal();
   await mockDatabase.clear(); // 기존 데이터 제거
-  for (const item of metadata) {
-    await mockDatabase.insert(item);
-  }
+  await mockDatabase.initializeDatabase(metadata); // ✅ 데이터 삽입
 
-  console.log(`✅ Loaded ${metadata.length} files into mock database`);
+  console.log(`✅ Database initialized with ${metadata.length} items.`);
 }
 
-// ✅ 서버가 처음 실행될 때 데이터 초기화
-initializeDatabase().catch(console.error);
+// ✅ Apollo Server 생성
+export const createServer = async () => {
+  if (!mockDatabase.isReady) {
+    await initializeDatabase(); // 🚀 서버가 준비되지 않았다면 초기화 실행
+  }
 
-// Apollo Server 생성 함수
-export const createServer = () => {
   return new ApolloServer<{
     req: NextApiRequest;
     res: NextApiResponse;
@@ -36,17 +35,15 @@ export const createServer = () => {
   });
 };
 
-// Next.js와 Apollo Server 통합 핸들러 생성 함수
-export const createHandler = () => {
-  const server = createServer();
-
+// ✅ Next.js API 핸들러 생성
+export const createHandler = async () => {
+  const server = await createServer();
   return startServerAndCreateNextHandler(server, {
     context: async (integrationContext) => {
       const { req, res } = integrationContext as unknown as {
         req: NextApiRequest;
         res: NextApiResponse;
       };
-      // 컨텍스트 설정 (필요 시 사용자 인증 추가 가능)
       return { req, res };
     },
   });
