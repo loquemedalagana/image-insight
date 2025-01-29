@@ -27,7 +27,7 @@ type Metadata {
 }
 
 type Query {
-  metadata: [Metadata!]!
+  metadata(dummy: Boolean = true): [Metadata!]!
   metadataById(id: ID!): Metadata # 특정 id로 데이터 조회
 }
 
