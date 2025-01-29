@@ -2,7 +2,7 @@ import { createTestServer } from '@/graphql/testServer';
 import { gql } from 'graphql-tag';
 import { ApolloServer, GraphQLResponse } from '@apollo/server';
 import { mockDatabase } from '@/lib/mockDB';
-import { getAllImages } from '@/utils/fileUtils';
+import { getAllImagesAsync } from '@/utils/fileUtils';
 import { Metadata } from '__generated__/graphql';
 
 describe('GraphQL API Tests', () => {
@@ -14,7 +14,7 @@ describe('GraphQL API Tests', () => {
 
   it('should fetch all metadata and match the image count', async () => {
     // 전체 이미지 파일 가져오기
-    const images = getAllImages('public/samples'); // 파일 경로를 기반으로 전체 이미지 가져오기
+    const images = await Array.fromAsync(getAllImagesAsync('public/samples')); // 파일 경로를 기반으로 전체 이미지 가져오기
 
     const GET_METADATA = gql`
       query GetMetadata {
