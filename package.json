@@ -12,7 +12,6 @@
     "test": "node --no-warnings --experimental-vm-modules node_modules/.bin/jest",
     "codegen": "graphql-codegen --config codegen.yml"
   },
-  "type": "module",
   "dependencies": {
     "@apollo/client": "^3.12.7",
     "@apollo/server": "^4.11.3",
@@ -38,6 +37,7 @@
     "@graphql-codegen/near-operation-file-preset": "^3.0.0",
     "@graphql-codegen/typescript": "^4.1.2",
     "@graphql-codegen/typescript-operations": "^4.4.0",
+    "@graphql-codegen/typescript-react-apollo": "^4.3.2",
     "@graphql-codegen/typescript-resolvers": "^4.4.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
