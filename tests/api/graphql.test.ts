@@ -18,9 +18,7 @@ describe('GraphQL API Tests', () => {
 
     // ✅ 테스트 실행 전, 로컬 파일에서 메타데이터 로드하여 mockDatabase 채우기
     const metadata = await extractMetadataFromLocal();
-    for (const item of metadata) {
-      await mockDatabase.insert(item);
-    }
+    await mockDatabase.initializeDatabase(metadata);
 
     console.log(`✅ Test database initialized with ${metadata.length} files`);
   });
