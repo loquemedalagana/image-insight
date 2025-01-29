@@ -12,9 +12,7 @@ async function initializeDatabase() {
 
   const metadata = await extractMetadataFromLocal();
   await mockDatabase.clear(); // 기존 데이터 제거
-  for (const item of metadata) {
-    await mockDatabase.insert(item);
-  }
+  await mockDatabase.initializeDatabase(metadata);
 
   console.log(`✅ Loaded ${metadata.length} files into mock database`);
 }

@@ -1,3 +1,8 @@
+enum FileFormat {
+  JPEG
+  CR3
+}
+
 type Category {
   id: ID!
   name: String!
@@ -34,6 +39,7 @@ type Metadata {
 input MetadataSearchCondition {
   categoryName: String
   fileName: String
+  fileFormat: FileFormat
 }
 
 type Query {
