@@ -38,6 +38,8 @@ test('extractMetadataFromLocal should return metadata for all sample images', as
 
     // ✅ 카테고리 검증 (배열)
     const expectedCategory = path.basename(path.dirname(expectedImages[index]));
-    expect(data.categories).toContain(expectedCategory);
+    expect(data.categories.map((category) => category.name)).toContain(
+      expectedCategory,
+    );
   });
 });
