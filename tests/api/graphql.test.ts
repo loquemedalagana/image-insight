@@ -4,7 +4,7 @@ import { ApolloServer, GraphQLResponse } from '@apollo/server';
 import { mockDatabase } from '@/lib/mockDB';
 import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { getAllImagesAsync } from '@/utils/fileUtils';
-import { Metadata } from '__generated__/graphql';
+import { Metadata, Category } from '__generated__/graphql';
 
 describe('GraphQL API Tests', () => {
   let server: ApolloServer;
@@ -26,7 +26,7 @@ describe('GraphQL API Tests', () => {
   });
 
   it('should fetch all metadata and match the image count', async () => {
-    // ✅ 전체 이미지 파일 가져오기 (`Array.fromAsync()` 제거)
+    // ✅ 전체 이미지 파일 가져오기
     const images: string[] = [];
     for await (const file of getAllImagesAsync('public/samples')) {
       images.push(file);
@@ -37,7 +37,10 @@ describe('GraphQL API Tests', () => {
         metadata(searchCondition: {}) {
           id
           fileName
-          categories
+          categories {
+            id
+            name
+          }
           width
           height
           format
@@ -66,10 +69,13 @@ describe('GraphQL API Tests', () => {
       expect(metadata?.[0]).toHaveProperty('categories');
       expect(metadata?.[0]).toHaveProperty('imageUrl');
 
+      // ✅ 카테고리 검증
+      expect(metadata?.[0].categories).toBeInstanceOf(Array);
+      expect(metadata?.[0].categories[0]).toHaveProperty('id');
+      expect(metadata?.[0].categories[0]).toHaveProperty('name');
+
       // ✅ URL 형식 검증
-      expect(metadata?.[0].imageUrl).toMatch(
-        /^(https?:\/\/)(localhost|[\w.-]+)(:\d{1,5})?\/?/,
-      );
+      expect(metadata?.[0].imageUrl).toMatch(/^https?:\/\/localhost(:\d+)?\/?/);
     } else {
       throw new Error('Unexpected incremental response');
     }
@@ -89,7 +95,10 @@ describe('GraphQL API Tests', () => {
         metadataById(id: $id) {
           id
           fileName
-          categories
+          categories {
+            id
+            name
+          }
           imageUrl
         }
       }
@@ -107,19 +116,47 @@ describe('GraphQL API Tests', () => {
       expect((singleResult.data?.metadataById as Partial<Metadata>)?.id).toBe(
         testId,
       );
+
+      // ✅ 카테고리 ID & Name 검증
+      expect(
+        (singleResult.data?.metadataById as Partial<Metadata>)?.categories,
+      ).toBeInstanceOf(Array);
+      expect(
+        (singleResult.data?.metadataById as Partial<Metadata>)?.categories?.[0]
+          ?.id,
+      ).toBeDefined();
+      expect(
+        (singleResult.data?.metadataById as Partial<Metadata>)?.categories?.[0]
+          ?.name,
+      ).toBeDefined();
+
+      // ✅ 이미지 URL 검증
       expect(
         (singleResult.data?.metadataById as Partial<Metadata>)?.imageUrl,
-      ).toMatch(/^(https?:\/\/)(localhost|[\w.-]+)(:\d{1,5})?\/?/);
+      ).toMatch(/^https?:\/\/localhost(:\d+)?\/?/);
     }
   });
 
   it('should delete metadata by ID', async () => {
+    // ✅ 기존 카테고리 추가 (중복 방지)
+    let category: Category | null =
+      mockDatabase.findCategoryByName('Landscape');
+    if (!category) {
+      category = await mockDatabase.insertCategory({ name: 'Landscape' });
+    }
+
     // ✅ 사전에 데이터 추가
     await mockDatabase.insert({
       id: 'delete-id',
       fileName: 'delete.jpg',
-      categories: ['Landscape'],
-    });
+      categories: [category], // ✅ ID + Name 포함
+      width: 1920,
+      height: 1080,
+      format: 'jpg',
+      size: 123456,
+      imageUrl: 'http://localhost:3000/public/samples/delete.jpg',
+      exif: null,
+    } as Metadata);
 
     const DELETE_METADATA_BY_ID = gql`
       mutation DeleteMetadataById($id: ID!) {
