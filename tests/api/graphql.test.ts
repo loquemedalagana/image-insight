@@ -2,6 +2,7 @@ import { createTestServer } from '@/graphql/testServer';
 import { gql } from 'graphql-tag';
 import { ApolloServer, GraphQLResponse } from '@apollo/server';
 import { mockDatabase } from '@/lib/mockDB';
+import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { getAllImagesAsync } from '@/utils/fileUtils';
 import { Metadata } from '__generated__/graphql';
 
@@ -14,6 +15,14 @@ describe('GraphQL API Tests', () => {
 
   beforeEach(async () => {
     await mockDatabase.clear(); // ✅ 각 테스트 전 DB 초기화
+
+    // ✅ 테스트 실행 전, 로컬 파일에서 메타데이터 로드하여 mockDatabase 채우기
+    const metadata = await extractMetadataFromLocal();
+    for (const item of metadata) {
+      await mockDatabase.insert(item);
+    }
+
+    console.log(`✅ Test database initialized with ${metadata.length} files`);
   });
 
   it('should fetch all metadata and match the image count', async () => {
@@ -25,7 +34,7 @@ describe('GraphQL API Tests', () => {
 
     const GET_METADATA = gql`
       query GetMetadata {
-        metadata {
+        metadata(searchCondition: {}) {
           id
           fileName
           categories
@@ -100,7 +109,7 @@ describe('GraphQL API Tests', () => {
       );
       expect(
         (singleResult.data?.metadataById as Partial<Metadata>)?.imageUrl,
-      ).toMatch(/^(https?:\/\/)(localhost|[\w.-]+)(:\d{1,5})?\/?/); // ✅ URL 형식 검증
+      ).toMatch(/^(https?:\/\/)(localhost|[\w.-]+)(:\d{1,5})?\/?/);
     }
   });
 
