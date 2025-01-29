@@ -1,16 +1,16 @@
 import path from 'path';
-import { extractMetadata } from '@/lib/extractMetadata';
+import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { getAllImages } from '@/utils/fileUtils';
 
-test('extractMetadata should return metadata for all sample images', async () => {
+test('extractMetadataFromLocal should return metadata for all sample images', async () => {
   // 샘플 이미지 디렉토리 경로
   const samplesDir = path.join(process.cwd(), 'public/samples');
 
   // 예상 파일 목록 가져오기
   const expectedImages = getAllImages(samplesDir);
 
-  // `extractMetadata` 결과 가져오기
-  const metadata = await extractMetadata();
+  // `extractMetadataFromLocal` 결과 가져오기
+  const metadata = await extractMetadataFromLocal();
 
   // 로그로 확인
   console.log(`Expected file count: ${expectedImages.length}`);

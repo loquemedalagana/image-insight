@@ -1,13 +1,14 @@
-import { extractMetadata } from '@/lib/extractMetadata';
+import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { mockDatabase } from '@/lib/mockDB';
 import { extractPhotoMetadata } from '@/utils/metadataUtils';
+import { Metadata } from '__generated__/graphql';
 
 export const resolvers = {
   Query: {
     // 전체 메타데이터 조회
     metadata: async () => {
       // 메타데이터 추출
-      const metadata = await extractMetadata();
+      const metadata = await extractMetadataFromLocal();
 
       // Mock DB 초기화 및 데이터 저장
       await mockDatabase.clear(); // 비동기 호출
