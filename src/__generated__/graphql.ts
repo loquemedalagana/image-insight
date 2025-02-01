@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { GraphQLContext } from '@/graphql/testServer';
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
@@ -18,6 +18,21 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  JSON: { input: any; output: any; }
+};
+
+export type CameraExtrinsics = {
+  __typename?: 'CameraExtrinsics';
+  position: Array<Scalars['Float']['output']>;
+  rotation: Array<Scalars['Float']['output']>;
+};
+
+export type CameraIntrinsics = {
+  __typename?: 'CameraIntrinsics';
+  focalLength: Scalars['Float']['output'];
+  principalPoint: Array<Scalars['Float']['output']>;
+  sensorHeight: Maybe<Scalars['Float']['output']>;
+  sensorWidth: Maybe<Scalars['Float']['output']>;
 };
 
 export type Category = {
@@ -37,6 +52,11 @@ export type ExifData = {
   make: Maybe<Scalars['String']['output']>;
   model: Maybe<Scalars['String']['output']>;
 };
+
+export enum FileFormat {
+  Cr3 = 'CR3',
+  Jpeg = 'JPEG'
+}
 
 export type Gps = {
   __typename?: 'GPS';
@@ -59,6 +79,7 @@ export type Metadata = {
 
 export type MetadataSearchCondition = {
   categoryName: InputMaybe<Scalars['String']['input']>;
+  fileFormat: InputMaybe<FileFormat>;
   fileName: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -66,7 +87,9 @@ export type Mutation = {
   __typename?: 'Mutation';
   addCategory: Maybe<Category>;
   addMetadata: Maybe<Metadata>;
-  deleteById: Maybe<Scalars['Boolean']['output']>;
+  deleteMetadataById: Maybe<Scalars['Boolean']['output']>;
+  startNerfPreprocessing: Array<NeRfImage>;
+  updateNerfImage: Maybe<NeRfImage>;
 };
 
 
@@ -76,20 +99,57 @@ export type MutationAddCategoryArgs = {
 
 
 export type MutationAddMetadataArgs = {
-  categories: Array<Scalars['String']['input']>;
+  categoryIds: Array<Scalars['ID']['input']>;
   filePath: Scalars['String']['input'];
 };
 
 
-export type MutationDeleteByIdArgs = {
+export type MutationDeleteMetadataByIdArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationStartNerfPreprocessingArgs = {
+  input: NeRfPreprocessingInput;
+};
+
+
+export type MutationUpdateNerfImageArgs = {
+  extrinsics: Array<Array<Scalars['Float']['input']>>;
+  id: Scalars['ID']['input'];
+  intrinsics: Array<Array<Scalars['Float']['input']>>;
+  preprocessingStatus: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NeRfImage = {
+  __typename?: 'NeRFImage';
+  extrinsics: Array<Array<Scalars['Float']['output']>>;
+  id: Scalars['ID']['output'];
+  intrinsics: Array<Array<Scalars['Float']['output']>>;
+  metadata: Metadata;
+  preprocessingStatus: Scalars['String']['output'];
+  processedAt: Maybe<Scalars['String']['output']>;
+};
+
+export type NeRfPreprocessingInput = {
+  algorithm: InputMaybe<Scalars['String']['input']>;
+  imageIds: Array<Scalars['ID']['input']>;
+  options: InputMaybe<Scalars['JSON']['input']>;
 };
 
 export type Query = {
   __typename?: 'Query';
+  getCategoryById: Maybe<Category>;
   getCategoryList: Array<Category>;
   metadata: Array<Metadata>;
   metadataById: Maybe<Metadata>;
+  nerfImageById: Maybe<NeRfImage>;
+  nerfImages: Array<NeRfImage>;
+};
+
+
+export type QueryGetCategoryByIdArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -102,12 +162,17 @@ export type QueryMetadataByIdArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type QueryNerfImageByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
 export type DeleteMetadataByIdMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type DeleteMetadataByIdMutation = { __typename?: 'Mutation', deleteById: boolean | null };
+export type DeleteMetadataByIdMutation = { __typename?: 'Mutation', deleteMetadataById: boolean | null };
 
 export type GetMetadataByIdQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -131,7 +196,7 @@ export type GetCategoryListQuery = { __typename?: 'Query', getCategoryList: Arra
 
 export const DeleteMetadataByIdDocument = gql`
     mutation DeleteMetadataById($id: ID!) {
-  deleteById(id: $id)
+  deleteMetadataById(id: $id)
 }
     `;
 export type DeleteMetadataByIdMutationFn = Apollo.MutationFunction<DeleteMetadataByIdMutation, DeleteMetadataByIdMutationVariables>;
@@ -374,15 +439,21 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']['output']>>;
+  CameraExtrinsics: ResolverTypeWrapper<Partial<CameraExtrinsics>>;
+  CameraIntrinsics: ResolverTypeWrapper<Partial<CameraIntrinsics>>;
   Category: ResolverTypeWrapper<Partial<Category>>;
   ExifData: ResolverTypeWrapper<Partial<ExifData>>;
+  FileFormat: ResolverTypeWrapper<Partial<FileFormat>>;
   Float: ResolverTypeWrapper<Partial<Scalars['Float']['output']>>;
   GPS: ResolverTypeWrapper<Partial<Gps>>;
   ID: ResolverTypeWrapper<Partial<Scalars['ID']['output']>>;
   Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
+  JSON: ResolverTypeWrapper<Partial<Scalars['JSON']['output']>>;
   Metadata: ResolverTypeWrapper<Partial<Metadata>>;
   MetadataSearchCondition: ResolverTypeWrapper<Partial<MetadataSearchCondition>>;
   Mutation: ResolverTypeWrapper<{}>;
+  NeRFImage: ResolverTypeWrapper<Partial<NeRfImage>>;
+  NeRFPreprocessingInput: ResolverTypeWrapper<Partial<NeRfPreprocessingInput>>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
 };
@@ -390,17 +461,36 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Partial<Scalars['Boolean']['output']>;
+  CameraExtrinsics: Partial<CameraExtrinsics>;
+  CameraIntrinsics: Partial<CameraIntrinsics>;
   Category: Partial<Category>;
   ExifData: Partial<ExifData>;
   Float: Partial<Scalars['Float']['output']>;
   GPS: Partial<Gps>;
   ID: Partial<Scalars['ID']['output']>;
   Int: Partial<Scalars['Int']['output']>;
+  JSON: Partial<Scalars['JSON']['output']>;
   Metadata: Partial<Metadata>;
   MetadataSearchCondition: Partial<MetadataSearchCondition>;
   Mutation: {};
+  NeRFImage: Partial<NeRfImage>;
+  NeRFPreprocessingInput: Partial<NeRfPreprocessingInput>;
   Query: {};
   String: Partial<Scalars['String']['output']>;
+};
+
+export type CameraExtrinsicsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CameraExtrinsics'] = ResolversParentTypes['CameraExtrinsics']> = {
+  position: Resolver<Array<ResolversTypes['Float']>, ParentType, ContextType>;
+  rotation: Resolver<Array<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CameraIntrinsicsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CameraIntrinsics'] = ResolversParentTypes['CameraIntrinsics']> = {
+  focalLength: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  principalPoint: Resolver<Array<ResolversTypes['Float']>, ParentType, ContextType>;
+  sensorHeight: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  sensorWidth: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
@@ -427,6 +517,10 @@ export type GpsResolvers<ContextType = GraphQLContext, ParentType extends Resolv
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
+
 export type MetadataResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Metadata'] = ResolversParentTypes['Metadata']> = {
   categories: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   exif: Resolver<Maybe<ResolversTypes['ExifData']>, ParentType, ContextType>;
@@ -442,22 +536,41 @@ export type MetadataResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addCategory: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<MutationAddCategoryArgs, 'name'>>;
-  addMetadata: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<MutationAddMetadataArgs, 'categories' | 'filePath'>>;
-  deleteById: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteByIdArgs, 'id'>>;
+  addMetadata: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<MutationAddMetadataArgs, 'categoryIds' | 'filePath'>>;
+  deleteMetadataById: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteMetadataByIdArgs, 'id'>>;
+  startNerfPreprocessing: Resolver<Array<ResolversTypes['NeRFImage']>, ParentType, ContextType, RequireFields<MutationStartNerfPreprocessingArgs, 'input'>>;
+  updateNerfImage: Resolver<Maybe<ResolversTypes['NeRFImage']>, ParentType, ContextType, RequireFields<MutationUpdateNerfImageArgs, 'extrinsics' | 'id' | 'intrinsics'>>;
+};
+
+export type NeRfImageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['NeRFImage'] = ResolversParentTypes['NeRFImage']> = {
+  extrinsics: Resolver<Array<Array<ResolversTypes['Float']>>, ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  intrinsics: Resolver<Array<Array<ResolversTypes['Float']>>, ParentType, ContextType>;
+  metadata: Resolver<ResolversTypes['Metadata'], ParentType, ContextType>;
+  preprocessingStatus: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  processedAt: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getCategoryById: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<QueryGetCategoryByIdArgs, 'id'>>;
   getCategoryList: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   metadata: Resolver<Array<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataArgs, 'searchCondition'>>;
   metadataById: Resolver<Maybe<ResolversTypes['Metadata']>, ParentType, ContextType, RequireFields<QueryMetadataByIdArgs, 'id'>>;
+  nerfImageById: Resolver<Maybe<ResolversTypes['NeRFImage']>, ParentType, ContextType, RequireFields<QueryNerfImageByIdArgs, 'id'>>;
+  nerfImages: Resolver<Array<ResolversTypes['NeRFImage']>, ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = GraphQLContext> = {
+  CameraExtrinsics: CameraExtrinsicsResolvers<ContextType>;
+  CameraIntrinsics: CameraIntrinsicsResolvers<ContextType>;
   Category: CategoryResolvers<ContextType>;
   ExifData: ExifDataResolvers<ContextType>;
   GPS: GpsResolvers<ContextType>;
+  JSON: GraphQLScalarType;
   Metadata: MetadataResolvers<ContextType>;
   Mutation: MutationResolvers<ContextType>;
+  NeRFImage: NeRfImageResolvers<ContextType>;
   Query: QueryResolvers<ContextType>;
 };
 

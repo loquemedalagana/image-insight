@@ -12,6 +12,9 @@ export interface ExifData {
         longitude: number;
       }
     | 'No GPS data';
+  subjectDistance: string;
+  focusDistance: string;
+  colorSpace: string;
 }
 
 // `processExif`가 데이터를 반환하지 못할 경우를 대비한 타입 추가

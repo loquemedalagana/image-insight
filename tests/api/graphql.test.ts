@@ -158,7 +158,7 @@ describe('GraphQL API Tests', () => {
 
     const DELETE_METADATA_BY_ID = gql`
       mutation DeleteMetadataById($id: ID!) {
-        deleteById(id: $id)
+        deleteMetadataById(id: $id)
       }
     `;
 
@@ -170,7 +170,7 @@ describe('GraphQL API Tests', () => {
     if (result.body.kind === 'single') {
       const singleResult = result.body.singleResult;
       expect(singleResult.errors).toBeUndefined();
-      expect(singleResult.data?.deleteById).toBe(true);
+      expect(singleResult.data?.deleteMetadataById).toBe(true);
 
       // ✅ 삭제 검증
       const deleted = await mockDatabase.findById('delete-id');
