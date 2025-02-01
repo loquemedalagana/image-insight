@@ -1,3 +1,6 @@
+# Custom scalar for flexible JSON options (옵션 전달을 위해)
+scalar JSON
+
 enum FileFormat {
   JPEG
   CR3
@@ -36,6 +39,42 @@ type Metadata {
   exif: ExifData
 }
 
+# -------------------------------
+# NeRF 이미지 전처리를 위한 추가 타입
+# -------------------------------
+
+# 카메라 내부 파라미터를 표현하는 타입
+type CameraIntrinsics {
+  focalLength: Float! # 단위: mm 또는 픽셀(설정에 따라)
+  principalPoint: [Float!]! # [cx, cy]
+  sensorWidth: Float # 센서 폭 (optional)
+  sensorHeight: Float # 센서 높이 (optional)
+}
+
+# 카메라 외부 파라미터(위치 및 방향)를 표현하는 타입
+type CameraExtrinsics {
+  position: [Float!]! # [x, y, z] 좌표
+  rotation: [Float!]! # 회전값 (예: Euler 각도 혹은 quaternion)
+}
+
+# NeRF 학습에 사용될 전처리 이미지 데이터 타입 (메타데이터와 카메라 파라미터 포함)
+type NeRFImage {
+  id: ID!
+  metadata: Metadata! # 원본 이미지 메타데이터
+  # 내·외부 파라미터는 보통 2차원 배열(행렬)로 저장하거나 별도 타입으로 변환 가능
+  intrinsics: [[Float!]!]! # 예: 3x3 내적 행렬 (또는 CameraIntrinsics 타입으로도 대체 가능)
+  extrinsics: [[Float!]!]! # 예: 4x4 외적(프로젝션) 행렬
+  preprocessingStatus: String! # 전처리 상태 (예: "pending", "completed", "failed")
+  processedAt: String # 전처리 완료 시간 (ISO8601 형식)
+}
+
+# 전처리 작업에 필요한 입력값 (여러 이미지 선택 및 옵션 전달 등)
+input NeRFPreprocessingInput {
+  imageIds: [ID!]!
+  algorithm: String # 전처리에 사용할 알고리즘 명 (옵션)
+  options: JSON # 알고리즘별 추가 옵션 (custom JSON scalar)
+}
+
 input MetadataSearchCondition {
   categoryName: String
   fileName: String
@@ -45,15 +84,29 @@ input MetadataSearchCondition {
 type Query {
   metadata(searchCondition: MetadataSearchCondition!): [Metadata!]!
   metadataById(id: ID!): Metadata # 특정 id로 데이터 조회
+  getCategoryById(id: ID!): Category
   getCategoryList: [Category!]! # ✅ 카테고리를 `Set`으로 관리 (중복 제거)
+  # 추가: NeRF 전처리용 이미지 데이터 조회
+  nerfImages: [NeRFImage!]!
+  nerfImageById(id: ID!): NeRFImage
 }
 
 type Mutation {
-  deleteById(id: ID!): Boolean # 특정 id로 데이터 삭제
+  deleteMetadataById(id: ID!): Boolean # 특정 id로 데이터 삭제
   # 새로운 메타데이터를 추가하는 Mutation
   addMetadata(
     filePath: String!
-    categories: [String!]! # ✅ 여러 개의 카테고리를 받을 수 있도록 수정
+    categoryIds: [ID!]! # ✅ 여러 개의 카테고리를 받을 수 있도록 수정
   ): Metadata
   addCategory(name: String!): Category # ✅ 새로운 카테고리를 추가하는 Mutation
+
+  # NeRF 전처리 관련 Mutation 예시
+  updateNerfImage(
+    id: ID!
+    intrinsics: [[Float!]!]!
+    extrinsics: [[Float!]!]!
+    preprocessingStatus: String
+  ): NeRFImage
+
+  startNerfPreprocessing(input: NeRFPreprocessingInput!): [NeRFImage!]!
 }

@@ -1,5 +1,5 @@
 import exifr from 'exifr';
-import fs from 'fs';
+import fs from 'fs/promises';
 import { ExifData } from '@/lib/types';
 
 export const processExif = async (
@@ -11,14 +11,17 @@ export const processExif = async (
     }
 > => {
   try {
-    // 파일 내용을 Buffer로 읽기
-    const fileBuffer = fs.readFileSync(filePath);
+    // 파일 내용을 Buffer로 비동기적으로 읽기
+    const fileBuffer = await fs.readFile(filePath);
 
     // exifr로 EXIF 데이터 추출
     const exifData = await exifr.parse(fileBuffer, {
-      tiff: true,
-      exif: true,
-      gps: true,
+      tiff: true, // TIFF 블록 데이터 가져오기
+      exif: true, // EXIF 메타데이터
+      gps: true, // GPS 위치 정보
+      interop: true, // 호환성 관련 정보
+      makerNote: true, // 제조사 메타데이터 (카메라 브랜드별 추가 정보)
+      userComment: true, // 사용자 메모 포함
     });
 
     // EXIF 데이터가 없는 경우 처리
@@ -39,6 +42,13 @@ export const processExif = async (
         exifData.GPSLatitude && exifData.GPSLongitude
           ? { latitude: exifData.GPSLatitude, longitude: exifData.GPSLongitude }
           : 'No GPS data',
+      subjectDistance: exifData.SubjectDistance || 'Unknown',
+      focusDistance: exifData.FocusDistance || 'Unknown',
+      colorSpace: exifData.ColorSpace || 'Unknown',
+      exposureMode: exifData.ExposureMode || 'Unknown',
+      lensModel: exifData.LensModel || 'Unknown',
+      lensInfo: exifData.LensInfo || 'Unknown',
+
     };
   } catch (error: any) {
     // 에러 처리
