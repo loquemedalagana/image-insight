@@ -75,7 +75,7 @@ export const resolvers = {
         const insertedPhoto = await mockDatabase.insert({
           ...photo,
           categories,
-        } as Metadata);
+        });
 
         console.log('Metadata added:', insertedPhoto);
         return insertedPhoto;
@@ -98,7 +98,7 @@ export const resolvers = {
     },
 
     // ID로 메타데이터 삭제
-    deleteById: async (_: any, { id }: { id: string }) => {
+    deleteMetadataById: async (_: any, { id }: { id: string }) => {
       const success = await mockDatabase.deleteById(id);
       console.log('Delete Metadata by ID:', id, success);
       return success;
