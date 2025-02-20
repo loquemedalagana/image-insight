@@ -44,13 +44,28 @@ export type Category = {
 export type ExifData = {
   __typename?: 'ExifData';
   dateTimeOriginal: Maybe<Scalars['String']['output']>;
-  exposureTime: Maybe<Scalars['String']['output']>;
-  fNumber: Maybe<Scalars['String']['output']>;
-  focalLength: Maybe<Scalars['String']['output']>;
+  exifImageHeight: Maybe<Scalars['Int']['output']>;
+  exifImageWidth: Maybe<Scalars['Int']['output']>;
+  exposureTime: Maybe<Scalars['Float']['output']>;
+  fNumber: Maybe<Scalars['Float']['output']>;
+  focalLength: Maybe<Scalars['Float']['output']>;
+  focalPlaneResolutionUnit: Maybe<Scalars['String']['output']>;
+  focalPlaneXResolution: Maybe<Scalars['Float']['output']>;
+  focalPlaneYResolution: Maybe<Scalars['Float']['output']>;
+  focusDistance: Maybe<Scalars['Float']['output']>;
+  gamma: Maybe<Scalars['Float']['output']>;
   gps: Maybe<Gps>;
   iso: Maybe<Scalars['Int']['output']>;
+  lensModel: Maybe<Scalars['String']['output']>;
   make: Maybe<Scalars['String']['output']>;
   model: Maybe<Scalars['String']['output']>;
+  orientation: Maybe<Scalars['String']['output']>;
+  primaryChromaticities: Array<Scalars['Float']['output']>;
+  resolutionUnit: Maybe<Scalars['String']['output']>;
+  subjectDistance: Maybe<Scalars['Float']['output']>;
+  whitePoint: Array<Scalars['Float']['output']>;
+  xResolution: Maybe<Scalars['Float']['output']>;
+  yResolution: Maybe<Scalars['Float']['output']>;
 };
 
 export enum FileFormat {
@@ -127,7 +142,7 @@ export type NeRfImage = {
   id: Scalars['ID']['output'];
   intrinsics: Array<Array<Scalars['Float']['output']>>;
   metadata: Metadata;
-  preprocessingStatus: Scalars['String']['output'];
+  preprocessingStatus: PreprocessingStatus;
   processedAt: Maybe<Scalars['String']['output']>;
 };
 
@@ -136,6 +151,12 @@ export type NeRfPreprocessingInput = {
   imageIds: Array<Scalars['ID']['input']>;
   options: InputMaybe<Scalars['JSON']['input']>;
 };
+
+export enum PreprocessingStatus {
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Pending = 'PENDING'
+}
 
 export type Query = {
   __typename?: 'Query';
@@ -454,6 +475,7 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   NeRFImage: ResolverTypeWrapper<Partial<NeRfImage>>;
   NeRFPreprocessingInput: ResolverTypeWrapper<Partial<NeRfPreprocessingInput>>;
+  PreprocessingStatus: ResolverTypeWrapper<Partial<PreprocessingStatus>>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
 };
@@ -501,13 +523,28 @@ export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type ExifDataResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExifData'] = ResolversParentTypes['ExifData']> = {
   dateTimeOriginal: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  exposureTime: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  fNumber: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  focalLength: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  exifImageHeight: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  exifImageWidth: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  exposureTime: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  fNumber: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  focalLength: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  focalPlaneResolutionUnit: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  focalPlaneXResolution: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  focalPlaneYResolution: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  focusDistance: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  gamma: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   gps: Resolver<Maybe<ResolversTypes['GPS']>, ParentType, ContextType>;
   iso: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  lensModel: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   make: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   model: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  orientation: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  primaryChromaticities: Resolver<Array<ResolversTypes['Float']>, ParentType, ContextType>;
+  resolutionUnit: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subjectDistance: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  whitePoint: Resolver<Array<ResolversTypes['Float']>, ParentType, ContextType>;
+  xResolution: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  yResolution: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -547,7 +584,7 @@ export type NeRfImageResolvers<ContextType = GraphQLContext, ParentType extends 
   id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   intrinsics: Resolver<Array<Array<ResolversTypes['Float']>>, ParentType, ContextType>;
   metadata: Resolver<ResolversTypes['Metadata'], ParentType, ContextType>;
-  preprocessingStatus: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  preprocessingStatus: Resolver<ResolversTypes['PreprocessingStatus'], ParentType, ContextType>;
   processedAt: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
