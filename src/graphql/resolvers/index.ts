@@ -75,7 +75,7 @@ export const resolvers = {
         const insertedPhoto = await mockDatabase.insert({
           ...photo,
           categories,
-        } as Metadata);
+        });
 
         console.log('Metadata added:', insertedPhoto);
         return insertedPhoto;
