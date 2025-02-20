@@ -43,7 +43,6 @@ export const extractPhotoMetadata = async (
 
     // ✅ 메타데이터 객체 반환
     return {
-      id: uuidv4(),
       fileName: path.basename(filePath),
       categories: [category], // ✅ ID + Name 구조로 저장
       width: metadata.width || 0,
@@ -52,7 +51,7 @@ export const extractPhotoMetadata = async (
       size: stats.size,
       exif: exifData,
       imageUrl,
-    };
+    } as unknown as Omit<Metadata, 'id'>;
   } catch (error: any) {
     if (error.code === 'ENOENT') {
       console.error(`File not found: ${filePath}`);
