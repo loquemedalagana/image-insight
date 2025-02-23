@@ -3,13 +3,15 @@ import {
   Category,
   Exact,
   GetCategoryListDocument,
-  GetCategoryListQuery, GetMetadataDocument, GetMetadataQuery,
+  GetCategoryListQuery,
+  GetMetadataDocument,
+  GetMetadataQuery,
   MetadataSearchCondition,
 } from '__generated__/graphql';
 import { ApolloError, QueryResult } from '@apollo/client';
 import ApolloErrorPageComponent from '@/components/error/ApolloErrorPageComponent';
 import CategoryFilter from '@/components/filter/CategoryFilter';
-// import MasonryImageList from '@/components/masonry/MasonryImageList';
+import MasonryImageList from '@/components/masonry/MasonryImageList';
 
 export default async function Home({
   searchParams,
@@ -63,11 +65,8 @@ export default async function Home({
       query: GetMetadataDocument,
       variables: {
         searchCondition: searchCondition,
-      }
+      },
     })) as QueryResult<GetMetadataQuery, Exact<{ [key: string]: never }>>;
-
-    console.log('metadataQueryResult', metadataQueryResult?.metadata);
-
 
     return (
       <main className="flex flex-col gap-8 items-center p-4 w-full min-h-screen">
@@ -75,14 +74,19 @@ export default async function Home({
         <div className="flex justify-center w-full">
           {categoryListQueryResult?.getCategoryList ? (
             <CategoryFilter
-              initialCategories={categoryListQueryResult.getCategoryList as Category[]}
+              initialCategories={
+                categoryListQueryResult.getCategoryList as Category[]
+              }
             />
           ) : (
             <p className="text-center w-full">🚀 No categories found.</p>
           )}
         </div>
-        {/* ✅ MasonryImageList도 여기에 추가 가능 */}
-        {/* <MasonryImageList images={...} /> */}
+        {metadataQueryResult?.metadata ? (
+          <MasonryImageList data={metadataQueryResult} />
+        ) : (
+          <></>
+        )}
       </main>
     );
   } catch (e) {
