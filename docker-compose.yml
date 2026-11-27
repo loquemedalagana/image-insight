@@ -1,6 +1,7 @@
 version: '3.8'
 services:
-  app:
+  image-insight:
+    image: image-insight
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,5 +12,6 @@ services:
       - /usr/src/app/node_modules # node_modules를 볼륨에 마운트하지 않음
     environment:
       NODE_ENV: development
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000 # page.tsx가 /api/init-db를 호출할 때 사용
     stdin_open: true
     tty: true
