@@ -56,16 +56,16 @@ Based on `package.json` and the actual imports.
 | Area | Technology | Notes |
 | --- | --- | --- |
 | Language | TypeScript 5 | strict mode |
-| Framework | Next.js 15.1 (App Router), React 19 | API served by Route Handlers |
-| API | Apollo Server 4, `@as-integrations/next`, GraphQL 16 | `/api/graphql` |
+| Framework | Next.js 15.5 (App Router), React 19 | API served by Route Handlers |
+| API | Apollo Server 5, `@as-integrations/next`, GraphQL 16 | `/api/graphql` |
 | Client | Apollo Client 3 | queried from a server component |
 | Type generation | graphql-codegen | schema → `src/__generated__/graphql.ts` |
-| Image processing | sharp 0.33, exifr 7 | size and format, EXIF |
+| Image processing | sharp 0.35, exifr 7 | size and format, EXIF |
 | Storage | in-memory mockDB (the default, and the only store actually used) | reset on server restart |
 | Storage (incomplete) | mongodb 6 driver | see below |
 | Styling | Tailwind CSS 3 | |
 | Testing | Jest 29 + ts-jest (ESM mode) | |
-| Environment | Docker (node:18), Docker Compose, GitHub Actions (Node 20) | |
+| Environment | Docker (node:22), Docker Compose, GitHub Actions (Node 22) | |
 
 **MongoDB adapter status**: [`src/lib/mongoDB.ts`](src/lib/mongoDB.ts) and [`src/lib/databaseManager.ts`](src/lib/databaseManager.ts) contain a branch that uses MongoDB when `USE_MONGO_DB=true`. However, the code checks whether a connection exists before it ever tries to connect, so the connection never starts and everything falls back to mockDB. The GraphQL resolvers also call mockDB directly instead of going through `databaseManager`. For these reasons MongoDB is listed as incomplete, not supported.
 
@@ -119,7 +119,7 @@ The samples are 50 cat photos I took myself (about 16MB). The folders `together`
 
 ### 1. Run locally
 
-Node.js 20 is recommended (`.nvmrc`).
+Node.js 22 is recommended (`.nvmrc`). It runs on 20.9 or later.
 
 ```bash
 npm ci
@@ -164,7 +164,7 @@ npm run build     # production build
 [`processExif.ts`](src/lib/processExif.ts) returns a `{ message }` object instead of throwing when a file has no EXIF or parsing fails. When EXIF exists, each field gets a default so the response shape stays the same. Both cases are covered with fixture images in [`processExif.test.ts`](tests/lib/processExif.test.ts).
 
 **4. Docker to pin the Node version**
-At the time, my local machine ran Node 22 and the assumed target environment ran Node 18, so the [`Dockerfile`](Dockerfile) and [`docker-compose.yml`](docker-compose.yml) pin the runtime. Source is mounted as a volume, and `node_modules` stays inside the container.
+At the time, my local machine ran Node 22 and the assumed target environment ran Node 18, so the [`Dockerfile`](Dockerfile) and [`docker-compose.yml`](docker-compose.yml) pin the runtime. The image was moved to `node:22` in the 2026-11 dependency update. Source is mounted as a volume, and `node_modules` stays inside the container.
 
 ---
 
@@ -176,7 +176,8 @@ At the time, my local machine ran Node 22 and the assumed target environment ran
 - Resolvers call mockDB directly, so there are two data paths: the resolvers and the `databaseManager` abstraction.
 - Tests focus on server-side logic. There are no component tests or E2E tests.
 - The pagination arguments (`page`, `limit`) are accepted but not applied.
-- Images are served at original size. There are no thumbnails.
+- The 2000px samples are served as is. There are no thumbnails.
+- `npm audit` still reports transitive dependency warnings from a development tool (the graphql-codegen 5 line). The major upgrade changes the shape of the generated types, so it is on hold. One item can only be resolved by moving to Next.js 16.
 
 If I pick this up again, the order would be: (1) route the resolvers through `databaseManager` and fix the MongoDB connection flow, (2) thumbnails and pagination, (3) authentication.
 
@@ -187,7 +188,7 @@ If I pick this up again, the order would be: (1) route the resolvers through `da
 | When | What | Tools |
 | --- | --- | --- |
 | 2025-01 to 2025-02 | All design and implementation. 82 commits | Solo, no AI tools |
-| 2026-11 | Test fixes, CI, lint cleanup, documentation | Claude Code |
+| 2026-11 | Test fixes, CI, lint cleanup, documentation, new samples, dependency security updates | Claude Code |
 
 For the 2026-11 cleanup, the split was as follows.
 
