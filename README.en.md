@@ -219,7 +219,7 @@ The 2026-11 maintenance work:
 | [PR #1](https://github.com/loquemedalagana/image-insight/pull/1) | Recovered the broken tests (4 of 9 failing → all passing), fixed the lint config, added CI, rewrote the README, replaced the sample images |
 | [PR #2](https://github.com/loquemedalagana/image-insight/pull/2) | Dependency and security updates (Next.js 15.5, Apollo Server 5, sharp 0.35), move to Node 22, removal of unused dependencies |
 | [PR #3](https://github.com/loquemedalagana/image-insight/pull/3) | README screenshots |
-| Schema cleanup | Removed schema items without resolvers, implemented `getCategoryById`, added the schema and resolver match test, environment-based introspection, path validation for `addMetadata`, a fix for the error on files without EXIF |
+| [PR #4](https://github.com/loquemedalagana/image-insight/pull/4) | Removed schema items without resolvers, implemented `getCategoryById`, added the schema and resolver match test, environment-based introspection, path validation for `addMetadata`, a fix for the error on files without EXIF |
 
 In this maintenance work, the split between me and the AI tool was as follows.
 

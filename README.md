@@ -219,7 +219,7 @@ npm run build     # 프로덕션 빌드
 | [PR #1](https://github.com/loquemedalagana/image-insight/pull/1) | 깨져 있던 테스트 복구(9개 중 4개 실패 → 전부 통과), lint 설정 복구, CI 추가, README 재작성, 샘플 이미지 교체 |
 | [PR #2](https://github.com/loquemedalagana/image-insight/pull/2) | 의존성·보안 업데이트(Next.js 15.5, Apollo Server 5, sharp 0.35), Node 22 이전, 쓰지 않는 의존성 제거 |
 | [PR #3](https://github.com/loquemedalagana/image-insight/pull/3) | README 스크린샷 |
-| 스키마 정리 | resolver 없는 스키마 항목 제거, `getCategoryById` 구현, 스키마·resolver 일치 테스트, introspection 환경별 제어, `addMetadata` 경로 검증, EXIF 없는 파일의 응답 오류 수정 |
+| [PR #4](https://github.com/loquemedalagana/image-insight/pull/4) | resolver 없는 스키마 항목 제거, `getCategoryById` 구현, 스키마·resolver 일치 테스트, introspection 환경별 제어, `addMetadata` 경로 검증, EXIF 없는 파일의 응답 오류 수정 |
 
 이 유지보수 작업에서 사람과 AI의 역할 구분은 다음과 같습니다.
 
