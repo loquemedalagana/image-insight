@@ -2,10 +2,9 @@ import sharp from 'sharp';
 import fs from 'fs/promises';
 import path from 'path';
 import { processExif } from '@/lib/processExif';
-import { v4 as uuidv4 } from 'uuid';
 import { BASE_URL } from '@/config';
 import { mockDatabase } from '@/lib/mockDB';
-import { Metadata, Category } from '__generated__/graphql';
+import { Metadata } from '__generated__/graphql';
 
 // 개별 파일에서 메타데이터를 추출하는 함수
 export const extractPhotoMetadata = async (
@@ -52,7 +51,8 @@ export const extractPhotoMetadata = async (
       exif: exifData,
       imageUrl,
     } as unknown as Omit<Metadata, 'id'>;
-  } catch (error: any) {
+  } catch (e) {
+    const error = e as NodeJS.ErrnoException;
     if (error.code === 'ENOENT') {
       console.error(`File not found: ${filePath}`);
       throw new Error(`File not found: ${filePath}`);

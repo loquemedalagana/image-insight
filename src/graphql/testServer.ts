@@ -5,7 +5,7 @@ import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 
 export interface GraphQLContext {
   dataSources?: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 

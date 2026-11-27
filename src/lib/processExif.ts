@@ -79,9 +79,9 @@ export const processExif = async (
       // 렌즈 관련 정보
       lensModel: exifData.LensModel || 'Unknown',
     };
-  } catch (error: any) {
+  } catch (error) {
     // 에러 처리: 지원되지 않는 파일 형식 등
-    if (error.message.includes('unsupported')) {
+    if (error instanceof Error && error.message.includes('unsupported')) {
       console.warn(`Unsupported file format for EXIF extraction: ${filePath}`);
       return { message: 'Unsupported file format' };
     }

@@ -1,6 +1,6 @@
 import { createHandler } from '@/app/api/graphql/server';
 
-let handler: any;
+let handler: ReturnType<typeof createHandler> | undefined;
 
 async function getHandler() {
   if (!handler) {

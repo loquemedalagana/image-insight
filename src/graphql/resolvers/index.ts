@@ -1,4 +1,3 @@
-import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { mockDatabase } from '@/lib/mockDB';
 import { extractPhotoMetadata } from '@/utils/metadataUtils';
 import {
@@ -10,7 +9,7 @@ import {
 export const resolvers = {
   Query: {
     metadata: async (
-      _: any,
+      _: unknown,
       { searchCondition }: { searchCondition?: MetadataSearchCondition },
     ) => {
       const metadata = (await mockDatabase.findAll()) as Metadata[];
@@ -36,7 +35,7 @@ export const resolvers = {
     },
 
     // ID로 메타데이터 조회
-    metadataById: async (_: any, { id }: { id: string }) => {
+    metadataById: async (_: unknown, { id }: { id: string }) => {
       const metadata = await mockDatabase.findById(id);
       console.log('Metadata by ID:', id, metadata);
       return metadata || null;
@@ -61,7 +60,7 @@ export const resolvers = {
 
   Mutation: {
     addMetadata: async (
-      _: any,
+      _: unknown,
       { filePath, categoryIds }: { filePath: string; categoryIds: string[] },
     ) => {
       try {
@@ -86,7 +85,7 @@ export const resolvers = {
     },
 
     // ✅ 새로운 카테고리 추가 기능
-    addCategory: async (_: any, { name }: { name: string }) => {
+    addCategory: async (_: unknown, { name }: { name: string }) => {
       const existingCategory = mockDatabase.findCategoryByName(name);
       if (existingCategory) {
         return existingCategory; // ✅ 이미 존재하는 경우 반환
@@ -98,7 +97,7 @@ export const resolvers = {
     },
 
     // ID로 메타데이터 삭제
-    deleteMetadataById: async (_: any, { id }: { id: string }) => {
+    deleteMetadataById: async (_: unknown, { id }: { id: string }) => {
       const success = await mockDatabase.deleteById(id);
       console.log('Delete Metadata by ID:', id, success);
       return success;
