@@ -117,7 +117,7 @@ export const extractMetadataFromLocal = async () => {
 2. **기술 심화 학습**:
 
    - Apollo Client의 상태 관리 및 프론트엔드 기술 복습.
-   - WebAssembly, WebGPU 등의 그래픽스와 비전 관련 기술 도입 준비.
+   - WebAssembly, WebGPU 등 이미지 처리 관련 기술 도입 준비.
 
 3. **확장성 있는 설계**:
    - 현재는 JPG 파일만 지원하지만, CR3/CRW 파일과 같은 고난도 이미지 포맷 처리를 위한 추가 라이브러리 학습 필요.
