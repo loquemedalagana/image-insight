@@ -15,10 +15,9 @@ A full-stack personal project on Next.js 15 that extracts image information and 
 | Core stack | TypeScript, Next.js 15 (App Router), React 19, Apollo Server and Client (GraphQL), graphql-codegen, sharp, exifr, Jest, Docker |
 | Status | Local prototype. Not deployed, no operations, no authentication. Storage is an in-memory mockDB |
 
-<!-- TODO(screenshot): add docs/screenshot-gallery.png, then uncomment the line below -->
-<!-- ![Gallery screen](docs/screenshot-gallery.png) -->
-
-> Screenshot placeholder (to be added)
+| Gallery | Category filter (gray-tabby) |
+| --- | --- |
+| ![Gallery](docs/screenshot-gallery.jpg) | ![Category filter (gray-tabby)](docs/screenshot-filter.jpg) |
 
 ---
 
