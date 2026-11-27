@@ -56,20 +56,18 @@
 | 구분 | 사용 기술 | 비고 |
 | --- | --- | --- |
 | 언어 | TypeScript 5 | strict 모드 |
-| 프레임워크 | Next.js 15.1 (App Router), React 19 | Route Handler로 API 제공 |
-| API | Apollo Server 4, `@as-integrations/next`, GraphQL 16 | `/api/graphql` |
+| 프레임워크 | Next.js 15.5 (App Router), React 19 | Route Handler로 API 제공 |
+| API | Apollo Server 5, `@as-integrations/next`, GraphQL 16 | `/api/graphql` |
 | 클라이언트 | Apollo Client 3 | 서버 컴포넌트에서 조회 |
 | 타입 생성 | graphql-codegen | 스키마 → `src/__generated__/graphql.ts` |
-| 이미지 처리 | sharp 0.33, exifr 7 | 크기·포맷, EXIF |
+| 이미지 처리 | sharp 0.35, exifr 7 | 크기·포맷, EXIF |
 | 저장소 | 메모리 mockDB (기본이자 실제로 쓰이는 유일한 저장소) | 서버를 재시작하면 초기화됨 |
 | 저장소(미완성) | mongodb 6 드라이버 | 아래 설명 참고 |
 | 스타일 | Tailwind CSS 3 | |
 | 테스트 | Jest 29 + ts-jest (ESM 모드) | |
-| 환경 | Docker(node:18), Docker Compose, GitHub Actions(Node 20) | |
+| 환경 | Docker(node:22), Docker Compose, GitHub Actions(Node 22) | |
 
 **MongoDB 어댑터 상태**: [`src/lib/mongoDB.ts`](src/lib/mongoDB.ts)와 [`src/lib/databaseManager.ts`](src/lib/databaseManager.ts)에 `USE_MONGO_DB=true`일 때 MongoDB로 분기하는 코드가 있습니다. 하지만 연결 여부를 먼저 확인한 뒤에야 연결을 시도하는 구조라서 지금은 연결이 시작되지 않고 항상 mockDB로 떨어집니다. 또 GraphQL resolver는 `databaseManager`를 거치지 않고 mockDB를 직접 호출합니다. 그래서 MongoDB는 "지원"이 아니라 "미완성"으로 분류했습니다.
-
-`exif-js`, `formidable`, `supertest`, `node-mocks-http`, `@testing-library/*`는 설치만 되어 있고 현재 코드에서 쓰지 않습니다.
 
 ---
 
@@ -84,7 +82,7 @@ flowchart LR
     R --> M[("mockDB<br/>메모리")]
     I --> DM[databaseManager]
     DM --> M
-    DM -.->|"미완성: 현재 도달하지 않음"| MG[("MongoDB")]
+    DM -.->|"아직 미연결"| MG[("MongoDB")]
 
     subgraph EX["메타데이터 추출 파이프라인"]
         direction LR
@@ -96,6 +94,18 @@ flowchart LR
     I --> EX
     G -->|"서버 시작 시 1회"| EX
     F[("public/samples<br/>샘플 이미지")] --> W
+
+    classDef client fill:#dbeafe,stroke:#3b82f6,color:#1e3a8a
+    classDef api fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef store fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef pipe fill:#f3e8ff,stroke:#9333ea,color:#581c87
+    classDef planned fill:#f3f4f6,stroke:#9ca3af,color:#4b5563,stroke-dasharray:4 3
+
+    class B,P client
+    class I,G,R,DM api
+    class M,F store
+    class W,E,S,X pipe
+    class MG planned
 ```
 
 1. 페이지가 렌더링될 때 `/api/init-db`를 먼저 호출해 샘플 폴더의 메타데이터를 저장소에 적재합니다.
@@ -119,7 +129,7 @@ cd image-insight
 
 ### 1. 로컬 실행
 
-Node.js 20 권장(`.nvmrc`).
+Node.js 22 권장(`.nvmrc`). 20.9 이상이면 동작합니다.
 
 ```bash
 npm ci
@@ -164,7 +174,7 @@ npm run build     # 프로덕션 빌드
 [`processExif.ts`](src/lib/processExif.ts)는 EXIF가 없거나 파싱에 실패해도 예외를 던지지 않고 `{ message }` 객체를 반환합니다. EXIF가 있을 때도 필드마다 기본값을 채워 응답 형태를 일정하게 유지합니다. 두 경우 모두 [`processExif.test.ts`](tests/lib/processExif.test.ts)에서 fixture 이미지로 검증합니다.
 
 **4. Docker로 Node 버전 통일**
-개발 당시 로컬은 Node 22, 배포를 가정한 환경은 Node 18이어서 [`Dockerfile`](Dockerfile)과 [`docker-compose.yml`](docker-compose.yml)로 실행 환경을 고정했습니다. 소스는 볼륨으로 연결하고 `node_modules`는 컨테이너 것을 쓰도록 분리했습니다.
+개발 당시 로컬은 Node 22, 배포를 가정한 환경은 Node 18이어서 [`Dockerfile`](Dockerfile)과 [`docker-compose.yml`](docker-compose.yml)로 실행 환경을 고정했습니다. 2026-11 의존성 업데이트 때 이미지를 `node:22`로 올렸습니다. 소스는 볼륨으로 연결하고 `node_modules`는 컨테이너 것을 쓰도록 분리했습니다.
 
 ---
 
@@ -176,7 +186,8 @@ npm run build     # 프로덕션 빌드
 - resolver가 mockDB를 직접 호출해서 `databaseManager` 추상화와 경로가 둘로 나뉘어 있습니다.
 - 테스트는 서버 쪽 로직 중심입니다. 화면 컴포넌트 테스트와 E2E 테스트는 없습니다.
 - 페이지네이션 인자(`page`, `limit`)는 받기만 하고 적용하지 않습니다.
-- 원본 크기 이미지를 그대로 내려보냅니다. 썸네일 생성이 없습니다.
+- 2000px 샘플을 그대로 내려보냅니다. 썸네일 생성이 없습니다.
+- `npm audit`에 개발 도구(graphql-codegen 5 계열)의 전이 의존성 경고가 남아 있습니다. 메이저 업그레이드는 생성되는 타입 구조가 바뀌어 보류했습니다. Next.js 16으로 올려야 해결되는 항목도 1건 있습니다.
 
 다음에 손댄다면 순서는 (1) resolver를 `databaseManager`로 통일하고 MongoDB 연결 흐름 수정, (2) 썸네일과 페이지네이션, (3) 인증입니다.
 
@@ -187,7 +198,7 @@ npm run build     # 프로덕션 빌드
 | 시기 | 내용 | 도구 |
 | --- | --- | --- |
 | 2025-01 ~ 2025-02 | 설계와 구현 전체. 커밋 82개 | AI 도구 없이 1인 개발 |
-| 2026-11 | 테스트 수정, CI 추가, lint 정리, 문서 정리 | Claude Code 사용 |
+| 2026-11 | 테스트 수정, CI 추가, lint 정리, 문서 정리, 샘플 교체, 의존성 보안 업데이트 | Claude Code 사용 |
 
 2026-11 정리 작업의 구분은 다음과 같습니다.
 
@@ -208,7 +219,7 @@ npm run build     # 프로덕션 빌드
 - sharp로 합성 fixture 이미지 생성([`tests/fixtures/generate.mjs`](tests/fixtures/generate.mjs)), 테스트가 fixture를 보도록 수정
 - ESLint 설정 오류 수정과 `any` 타입 정리(동작 변경 없음), Next.js 15의 `searchParams` 타입 수정
 - GitHub Actions 워크플로 작성
-- README 초안 작성, MongoDB 분기가 실제로는 도달하지 않는다는 점 확인
+- README 초안 작성, MongoDB 쪽 코드가 실제로는 실행되지 않는다는 점 확인
 - 샘플 이미지의 EXIF 개인정보 점검 스크립트 실행과 결과 정리, 샘플 리사이즈와 일련번호 제거 처리
 - 서버 시작 직후 첫 GraphQL 응답이 비어 나가던 문제 수정
 

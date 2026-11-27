@@ -34,7 +34,8 @@ npm run codegen   # GraphQL 타입·훅 생성 → src/__generated__/graphql.ts
 - 화면은 `src/config.ts`의 `BASE_URL`로 자기 API를 호출한다. 기본값은 `http://localhost:3000`이고, 다른 포트·주소에서는 `NEXT_PUBLIC_BASE_URL`로 바꾼다.
 - 테스트는 ESM 모드(`node --experimental-vm-modules`)로 돈다. `jest` 전역이 없으므로 `jest.fn`, `jest.spyOn` 등을 쓸 때는 `import { jest } from '@jest/globals'`로 가져온다. `describe`/`it`/`expect`는 전역 그대로 쓴다.
 - 테스트는 `tests/setupEnv.ts`에서 `SAMPLES_DIR=tests/fixtures/samples`를 지정한다. fixture는 `node tests/fixtures/generate.mjs`로 다시 만들 수 있다.
-- Node 버전: CI는 `.nvmrc`(20), Docker 이미지는 `node:18`.
+- Node 버전: CI는 `.nvmrc`(22), Docker 이미지는 `node:22`. sharp 0.35와 Apollo Server 5가 Node 20.9 이상을 요구한다.
+- 의존성: Next.js는 15.x를 유지한다(16은 별도 작업). graphql-codegen은 5 계열을 유지한다. 8로 올리면 생성 타입이 중복되어 컴파일이 깨진다(2026-11 확인). `@apollo/client`는 3.13에 고정했다(3.14는 서버 로그에 deprecation 메시지를 찍는다).
 
 ## 폴더 구조
 
