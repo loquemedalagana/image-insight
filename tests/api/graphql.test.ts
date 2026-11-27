@@ -233,6 +233,39 @@ describe('GraphQL API Tests', () => {
     expect(result.body.singleResult.data?.getCategoryById).toBeNull();
   });
 
+  it('returns exif as null for a file without EXIF, without errors', async () => {
+    const result: GraphQLResponse = await server.executeOperation({
+      query: gql`
+        query GetExif {
+          metadata(searchCondition: {}) {
+            fileName
+            exif {
+              make
+              whitePoint
+              primaryChromaticities
+            }
+          }
+        }
+      `,
+    });
+
+    if (result.body.kind !== 'single') {
+      throw new Error('Unexpected incremental response');
+    }
+    // non-null 필드(whitePoint, primaryChromaticities)를 조회해도 오류가 없어야 한다.
+    expect(result.body.singleResult.errors).toBeUndefined();
+
+    const metadata = result.body.singleResult.data?.metadata as Metadata[];
+    const withExif = metadata.find((m) => m.fileName === 'with-exif.jpg');
+    const noExif = metadata.find((m) => m.fileName === 'no-exif.jpg');
+
+    expect(noExif).toBeDefined();
+    expect(noExif?.exif).toBeNull();
+    expect(withExif?.exif?.make).toBe('FixtureCam');
+    expect(withExif?.exif?.whitePoint).toHaveLength(2);
+    expect(withExif?.exif?.primaryChromaticities).toHaveLength(6);
+  });
+
   describe('addMetadata filePath validation', () => {
     const ADD_METADATA = gql`
       mutation AddMetadata($filePath: String!, $categoryIds: [ID!]!) {
