@@ -56,6 +56,11 @@ export const resolvers = {
 
       return Array.from(categoryMap.values()); // ✅ 중복 제거 후 반환
     },
+
+    // ID로 카테고리 조회 (없으면 null)
+    getCategoryById: async (_: unknown, { id }: { id: string }) => {
+      return mockDatabase.findCategoryById(id);
+    },
   },
 
   Mutation: {

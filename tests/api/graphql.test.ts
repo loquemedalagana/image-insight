@@ -183,4 +183,53 @@ describe('GraphQL API Tests', () => {
       throw new Error('Unexpected incremental response');
     }
   });
+
+  it('should fetch a category by ID', async () => {
+    const categories = await mockDatabase.findAllCategories();
+    expect(categories.length).toBeGreaterThan(0);
+    const target = categories[0];
+
+    const GET_CATEGORY_BY_ID = gql`
+      query GetCategoryById($id: ID!) {
+        getCategoryById(id: $id) {
+          id
+          name
+        }
+      }
+    `;
+
+    const result: GraphQLResponse = await server.executeOperation({
+      query: GET_CATEGORY_BY_ID,
+      variables: { id: target.id },
+    });
+
+    if (result.body.kind !== 'single') {
+      throw new Error('Unexpected incremental response');
+    }
+    expect(result.body.singleResult.errors).toBeUndefined();
+    expect(result.body.singleResult.data?.getCategoryById).toEqual({
+      id: target.id,
+      name: target.name,
+    });
+  });
+
+  it('should return null for an unknown category ID', async () => {
+    const result: GraphQLResponse = await server.executeOperation({
+      query: gql`
+        query GetCategoryById($id: ID!) {
+          getCategoryById(id: $id) {
+            id
+            name
+          }
+        }
+      `,
+      variables: { id: 'no-such-category' },
+    });
+
+    if (result.body.kind !== 'single') {
+      throw new Error('Unexpected incremental response');
+    }
+    expect(result.body.singleResult.errors).toBeUndefined();
+    expect(result.body.singleResult.data?.getCategoryById).toBeNull();
+  });
 });
