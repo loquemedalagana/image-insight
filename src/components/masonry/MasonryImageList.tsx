@@ -1,8 +1,4 @@
-import {
-  GetMetadataDocument,
-  GetMetadataQuery,
-  GetMetadataQueryVariables,
-} from '__generated__/graphql';
+import { GetMetadataQuery } from '__generated__/graphql';
 
 interface MasonryImageListProps {
   data: GetMetadataQuery;

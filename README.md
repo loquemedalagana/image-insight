@@ -1,286 +1,215 @@
-# 프로젝트: 이미지 메타데이터 분석 도구
+# image-insight
 
-## 프로젝트 개요
+[![CI](https://github.com/loquemedalagana/image-insight/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/loquemedalagana/image-insight/actions/workflows/ci.yml)
 
-이 프로젝트는 **이미지 메타데이터 추출 및 관리**를 목표로 하며, JPG 파일을 중심으로 확장 가능한 시스템을 제공합니다. 사용자는 이미지 목록을 확인하고 메타데이터를 추출/분석하며, 추후 얼굴 인식 및 분류 기능, 그리고 2D에서 3D로 확장하는 기능까지 구현할 계획입니다.
+한국어 | [English](README.en.md)
 
----
+<p align="center"><img src="docs/cat.png" width="200" alt="갈색 줄무늬 고양이 픽셀 아트" /></p>
 
-## 📋 주요 기능
+로컬 폴더의 JPG에서 이미지 정보와 EXIF를 추출해 GraphQL API로 제공하고, 카테고리 필터가 있는 갤러리로 보여 주는 Next.js 15 풀스택 개인 프로젝트입니다.
 
-### 1. 현재 기능
+| 항목 | 내용 |
+| --- | --- |
+| 역할 | 1인 개발. 스키마 설계, API, 메타데이터 추출 로직, 화면, 테스트, Docker 환경까지 전부 직접 작성 |
+| 기간 | 2025-01 ~ 2025-02 (커밋 82개, AI 도구 없이 작성) / 2026-11 테스트·CI·문서 정리(Claude Code 사용) |
+| 핵심 기술 | TypeScript, Next.js 15(App Router), React 19, Apollo Server·Client(GraphQL), graphql-codegen, sharp, exifr, Jest, Docker |
+| 상태 | 로컬 실행용 프로토타입. 배포·운영·인증 없음. 저장소는 메모리 mockDB |
 
-- **이미지 메타데이터 추출**: JPG 파일 리스트에서 촬영 시간, 카메라 모델 등의 메타데이터를 추출.
-- **Git LFS 활용**: 프로젝트 초기 단계에서 Git LFS를 이용하여 이미지 파일 관리.
+<!-- TODO(screenshot): 갤러리 화면 스크린샷을 docs/screenshot-gallery.png 로 추가한 뒤 아래 주석을 해제 -->
+<!-- ![갤러리 화면](docs/screenshot-gallery.png) -->
 
-### 2. 확장 기능 (계획)
-
-- **이미지 저장**:
-  - 클라우드 스토리지: Backblaze 또는 Wasabi를 사용하여 최대 10TB까지 확장 가능.
-- **데이터 시각화**:
-  - Next.js + React를 활용해 이미지 목록과 상세 UI 제공.
-  - WebGPU/WebGL을 이용한 이미지 전처리 및 분석.
-- **메타데이터 기반 필터링**:
-  - 카메라 모델, 촬영 시간, 인물 등을 기준으로 이미지 필터링.
-- **이미지 분류 및 처리**:
-  - **face-api.js**를 활용한 얼굴 인식.
-  - **TensorFlow.js**로 브라우저 기반 이미지 분류.
-  - **Sharp**을 사용해 서버에서 이미지 리사이징 및 썸네일 생성.
-  - WebAssembly로 CR3 포맷 확장 지원.
-- **UI 구성**:
-  - 갤러리 형태의 UI.
-  - 분류 결과를 시각화(예: 그래프 기반).
-
-### 3. 장기 확장 계획
-
-- **2D -> 3D 전환**:
-  - RTX 4090 또는 5090 PC로 업그레이드 후, 로컬에서 학습해 3D 결과물을 생성.
+> 스크린샷 자리 (추가 예정)
 
 ---
 
-## 🔧 기술 스택
+## 구현된 기능
 
-### 프론트엔드
+- **메타데이터 추출**: `public/samples` 아래 JPG를 재귀 순회하며 sharp로 크기·포맷을, exifr로 EXIF(카메라, 렌즈, 노출, 촬영 시각, 해상도 등)를 읽어 하나의 레코드로 합칩니다. 폴더 이름이 카테고리가 됩니다.
+- **GraphQL API** (`/api/graphql`)
+  - Query: `metadata`(카테고리·파일명 필터), `metadataById`, `getCategoryList`
+  - Mutation: `addMetadata`, `addCategory`, `deleteMetadataById`
+- **DB 초기화 엔드포인트** (`/api/init-db`): 추출한 메타데이터를 저장소에 적재
+- **갤러리 화면**: 서버 컴포넌트에서 Apollo Client로 조회, URL 쿼리 기반 카테고리 필터, masonry 목록
+- **테스트와 CI**: Jest 테스트 9개(GraphQL API, DB 초기화, 추출 파이프라인, EXIF 파싱). GitHub Actions에서 lint와 테스트 실행
+- **Docker/Compose** 개발 환경
 
-- **Next.js**: 데이터 시각화 및 UI 구성.
-- **React**: 갤러리와 필터링 UI 제공.
-- **WebGPU/WebGL**: 이미지 전처리 및 분석.
+## 계획 (미구현)
 
-### 백엔드
+아래 항목은 코드가 없거나 스키마 정의만 있습니다.
 
-- **Node.js**: API 및 클라우드 스토리지 연동.
-- **MongoDB**: 이미지 메타데이터 관리.
-- **Neo4j**: 인물 분류 및 관계형 데이터 분석.
-
-### 클라우드 스토리지
-
-- **Backblaze B2** 또는 **Wasabi**: 대용량 이미지 파일 저장.
+- MongoDB 저장소 실사용 (어댑터 코드만 있음. 아래 기술 스택 참고)
+- NeRF 전처리 관련 타입·쿼리·뮤테이션 (GraphQL 스키마에만 있고 resolver 없음)
+- EXIF 기반 캘리브레이션 계산 (`calibrationUtils.ts`에 뼈대만 있음)
+- CR3 등 RAW 포맷 처리 (WebAssembly)
+- 얼굴 인식(face-api.js), 브라우저 이미지 분류(TensorFlow.js)
+- 클라우드 스토리지 연동(Backblaze B2 또는 Wasabi)
+- 인물 관계 데이터(Neo4j)
+- WebGPU/WebGL 기반 이미지 전처리
+- 이미지 업로드 UI, 썸네일 생성, 페이지네이션
 
 ---
 
-## 🚀 설치 및 실행 방법
+## 기술 스택
 
-### 1. Docker 사용
+`package.json`과 실제 import 기준입니다.
 
-Docker를 통해 프로젝트를 실행하려면 아래 단계를 따르세요:
+| 구분 | 사용 기술 | 비고 |
+| --- | --- | --- |
+| 언어 | TypeScript 5 | strict 모드 |
+| 프레임워크 | Next.js 15.1 (App Router), React 19 | Route Handler로 API 제공 |
+| API | Apollo Server 4, `@as-integrations/next`, GraphQL 16 | `/api/graphql` |
+| 클라이언트 | Apollo Client 3 | 서버 컴포넌트에서 조회 |
+| 타입 생성 | graphql-codegen | 스키마 → `src/__generated__/graphql.ts` |
+| 이미지 처리 | sharp 0.33, exifr 7 | 크기·포맷, EXIF |
+| 저장소 | 메모리 mockDB (기본이자 실제로 쓰이는 유일한 저장소) | 서버를 재시작하면 초기화됨 |
+| 저장소(미완성) | mongodb 6 드라이버 | 아래 설명 참고 |
+| 스타일 | Tailwind CSS 3 | |
+| 테스트 | Jest 29 + ts-jest (ESM 모드) | |
+| 환경 | Docker(node:18), Docker Compose, GitHub Actions(Node 20) | |
 
-### **1.1 Docker 빌드**
+**MongoDB 어댑터 상태**: [`src/lib/mongoDB.ts`](src/lib/mongoDB.ts)와 [`src/lib/databaseManager.ts`](src/lib/databaseManager.ts)에 `USE_MONGO_DB=true`일 때 MongoDB로 분기하는 코드가 있습니다. 하지만 연결 여부를 먼저 확인한 뒤에야 연결을 시도하는 구조라서 지금은 연결이 시작되지 않고 항상 mockDB로 떨어집니다. 또 GraphQL resolver는 `databaseManager`를 거치지 않고 mockDB를 직접 호출합니다. 그래서 MongoDB는 "지원"이 아니라 "미완성"으로 분류했습니다.
 
-```bash
-docker build -t image-scope .
+`exif-js`, `formidable`, `supertest`, `node-mocks-http`, `@testing-library/*`는 설치만 되어 있고 현재 코드에서 쓰지 않습니다.
 
+---
+
+## 아키텍처
+
+```mermaid
+flowchart LR
+    B[브라우저] --> P["page.tsx<br/>서버 컴포넌트"]
+    P -->|"1. GET"| I["/api/init-db"]
+    P -->|"2. Apollo Client 쿼리"| G["/api/graphql<br/>Apollo Server"]
+    G --> R[resolvers]
+    R --> M[("mockDB<br/>메모리")]
+    I --> DM[databaseManager]
+    DM --> M
+    DM -.->|"미완성: 현재 도달하지 않음"| MG[("MongoDB")]
+
+    subgraph EX["메타데이터 추출 파이프라인"]
+        direction LR
+        W["walkDirAsync<br/>Async Generator"] --> E[extractPhotoMetadata]
+        E --> S["sharp<br/>크기·포맷"]
+        E --> X["exifr<br/>EXIF"]
+    end
+
+    I --> EX
+    G -->|"서버 시작 시 1회"| EX
+    F[("public/samples<br/>샘플 이미지")] --> W
 ```
 
-### **1.2 Docker 컨테이너 실행**
-
-```bash
-docker run -p 3000:3000 -v $(pwd):/usr/src/app image-scope
-
-or
-
-docker-compose up
-
-```
-
-### **1.3 브라우저에서 확인**
-
-`http://localhost:3000`에 접속하여 프로젝트를 확인하세요.
+1. 페이지가 렌더링될 때 `/api/init-db`를 먼저 호출해 샘플 폴더의 메타데이터를 저장소에 적재합니다.
+2. 이어서 Apollo Client로 카테고리 목록과 메타데이터를 조회합니다. 필터는 URL의 `categoryName` 쿼리를 그대로 `searchCondition`으로 넘깁니다.
+3. resolver는 mockDB에서 읽어 조건에 맞게 걸러 반환합니다.
 
 ---
 
-### 2. 로컬 실행 (Docker 없이)
+## 실행 방법
 
-### **2.1 클론**
+### 0. 클론
 
 ```bash
-git clone https://github.com/image-insight.git
+git clone https://github.com/loquemedalagana/image-insight.git
 cd image-insight
-
 ```
 
-### **2.2 의존성 설치**
+샘플 이미지는 저장소에 일반 파일로 들어 있어서 clone만 하면 됩니다. Git LFS는 필요 없습니다. 테스트는 샘플 폴더가 아니라 `tests/fixtures`의 작은 테스트 전용 이미지를 씁니다.
+
+샘플은 직접 찍은 고양이 사진 50장(약 16MB)이고, 폴더 `together`, `gray-tabby`, `brown-tabby`가 카테고리가 됩니다. 공개용으로 긴 변을 2000px로 줄였고, 카메라·렌즈 일련번호와 XMP는 제거했습니다. 카메라·렌즈 모델, 노출, 촬영일, 저작권 표기는 남겼습니다.
+
+### 1. 로컬 실행
+
+Node.js 20 권장(`.nvmrc`).
 
 ```bash
-npm install
-
-```
-
-### **2.3 개발 서버 실행**
-
-```bash
+npm ci
 npm run dev
-
 ```
 
-### **2.4 이미지 파일 관리**
+`http://localhost:3000`에서 갤러리를, `http://localhost:3000/api/graphql`에서 GraphQL 엔드포인트를 쓸 수 있습니다. 페이지는 자기 API를 `http://localhost:3000`으로 호출합니다. 다른 포트나 주소로 띄울 때만 `NEXT_PUBLIC_BASE_URL`을 지정하면 됩니다.
 
-- **Git LFS 활성화**:
-
-  ```bash
-  git lfs install
-  git lfs track "*.jpg"
-
-  ```
-
-- **JPG 파일 업로드**:
-  프로젝트의 `public/samples` 디렉토리에 파일 저장.
-
----
-
-## 📌 사용 예시
-
-- 이미지를 업로드하고 메타데이터를 추출.
-- 메타데이터 기반으로 이미지 목록을 필터링.
-- 브라우저 기반 얼굴 인식 및 분류.
-
----
-
-## 📈 향후 개발 로드맵
-
-1. 클라우드 스토리지와 API 연동 완료.
-2. GraphQL로 데이터 관리 시스템 구축.
-3. WebGPU 기반 컬러 분석 및 이미지 전처리 기능 추가.
-4. 3D 이미지 출력 및 시각화 시스템 개발.
-
----
-
-# Project: Image Metadata Analysis Tool
-
-## Project Overview
-
-This project is designed to **extract and manage image metadata**, focusing on building a scalable system for JPG files. Users can view image lists, extract/analyze metadata, implement facial recognition and classification, and eventually expand to 3D visualization.
-
----
-
-## 📋 Key Features
-
-### 1. Current Features
-
-- **Metadata Extraction**: Extract metadata such as capture time, camera model, and more from JPG file lists.
-- **Git LFS Support**: Manage image files using Git LFS during the initial project phase.
-
-### 2. Planned Features
-
-- **Image Storage**:
-  - Use cloud storage solutions like Backblaze or Wasabi, scalable up to 10TB.
-- **Data Visualization**:
-  - Provide image lists and detailed UI using Next.js + React.
-  - Perform image preprocessing and analysis using WebGPU/WebGL.
-- **Metadata-Based Filtering**:
-  - Filter images by camera model, capture time, or individuals.
-- **Image Classification and Processing**:
-  - Facial recognition with **face-api.js**.
-  - Image classification using **TensorFlow.js**.
-  - Resize and generate thumbnails using **Sharp**.
-  - Extend CR3 format support with WebAssembly.
-- **UI Features**:
-  - Gallery-style UI for visual exploration.
-  - Visualization of classification results (e.g., graphs).
-
-### 3. Long-Term Expansion Plan
-
-- **2D to 3D Transition**:
-  - Upgrade to RTX 4090 or 5090 for local training and generating 3D outputs.
-
----
-
-## 🔧 Tech Stack
-
-### Frontend
-
-- **Next.js**: For data visualization and UI components.
-- **React**: Gallery and filtering UI.
-- **WebGPU/WebGL**: For image preprocessing and analysis.
-
-### Backend
-
-- **Node.js**: For API and cloud storage integration.
-- **MongoDB**: For metadata storage and management.
-- **Neo4j**: For classification and relationship data analysis.
-
-### Cloud Storage
-
-- **Backblaze B2** or **Wasabi**: To store large-scale image files.
-
----
-
-## 🚀 Setup and Run
-
-### 1. Run Using Docker
-
-### **1.1 Build the Docker Image**
+### 2. Docker 실행
 
 ```bash
-docker build -t image-scope .
-
+docker compose up --build
 ```
 
-### **1.2 Run the Docker Container**
+Compose 없이 실행하려면:
 
 ```bash
-docker run -p 3000:3000 -v $(pwd):/usr/src/app image-scope
-
-or
-
-docker-compose up
+docker build -t image-insight .
+docker run -p 3000:3000 image-insight
 ```
 
-### **1.3 Open in Browser**
+### 3. 테스트, lint, codegen
 
-Visit `http://localhost:3000` in your browser to view the project.
+```bash
+npm test          # Jest 9개 테스트 (tests/fixtures 사용)
+npm run lint      # ESLint
+npm run codegen   # types.graphql → src/__generated__/graphql.ts
+npm run build     # 프로덕션 빌드
+```
 
 ---
 
-### 2. Run Locally (Without Docker)
+## 설계 포인트
 
-### **2.1 Clone the Repository**
+**1. 스키마 우선 GraphQL과 codegen**
+[`types.graphql`](src/graphql/schema/types.graphql)을 단일 원본으로 두고, [`codegen.yml`](codegen.yml)로 서버 타입과 클라이언트 Document를 [`src/__generated__/graphql.ts`](src/__generated__/graphql.ts)에 생성합니다. resolver, mockDB, 화면 컴포넌트가 같은 `Metadata`, `Category` 타입을 공유하므로 스키마를 바꾸면 영향받는 곳이 컴파일 단계에서 드러납니다.
 
-```bash
-git clone https://github.com/image-insight.git
-cd image-insight
+**2. Async Generator 기반 디렉터리 순회**
+[`fileUtils.ts`](src/utils/fileUtils.ts)의 `getAllImagesAsync`와 [`extractMetadataFromLocal.ts`](src/lib/extractMetadataFromLocal.ts)의 `walkDirAsync`는 `yield*`로 하위 폴더를 재귀 순회하며 파일을 하나씩 내보냅니다. 전체 경로 목록을 먼저 만들지 않고 `for await`로 한 장씩 처리하며, 한 파일이 실패해도 로그만 남기고 다음 파일로 넘어갑니다.
 
-```
+**3. EXIF가 없는 파일 예외 처리**
+[`processExif.ts`](src/lib/processExif.ts)는 EXIF가 없거나 파싱에 실패해도 예외를 던지지 않고 `{ message }` 객체를 반환합니다. EXIF가 있을 때도 필드마다 기본값을 채워 응답 형태를 일정하게 유지합니다. 두 경우 모두 [`processExif.test.ts`](tests/lib/processExif.test.ts)에서 fixture 이미지로 검증합니다.
 
-### **2.2 Install Dependencies**
-
-```bash
-npm install
-
-```
-
-### **2.3 Start the Development Server**
-
-```bash
-npm run dev
-
-```
-
-### **2.4 Manage Image Files**
-
-- **Enable Git LFS**:
-
-  ```bash
-  git lfs install
-  git lfs track "*.jpg"
-
-  ```
-
-- **Upload JPG Files**:
-  Save files in the `public/samples` directory of the project.
+**4. Docker로 Node 버전 통일**
+개발 당시 로컬은 Node 22, 배포를 가정한 환경은 Node 18이어서 [`Dockerfile`](Dockerfile)과 [`docker-compose.yml`](docker-compose.yml)로 실행 환경을 고정했습니다. 소스는 볼륨으로 연결하고 `node_modules`는 컨테이너 것을 쓰도록 분리했습니다.
 
 ---
 
-## 📌 Example Use Cases
+## 한계와 다음 단계
 
-- Upload images and extract metadata.
-- Filter images based on metadata.
-- Perform browser-based facial recognition and classification.
+- 배포와 운영 경험은 이 저장소에 없습니다. 로컬과 Docker 개발 환경에서만 실행했습니다.
+- 인증과 권한이 없습니다. `addMetadata`는 서버의 파일 경로를 그대로 받으므로 외부에 공개하면 안 됩니다.
+- 저장소가 메모리 mockDB라서 서버를 재시작하면 데이터가 사라집니다. MongoDB 어댑터는 미완성입니다.
+- resolver가 mockDB를 직접 호출해서 `databaseManager` 추상화와 경로가 둘로 나뉘어 있습니다.
+- 테스트는 서버 쪽 로직 중심입니다. 화면 컴포넌트 테스트와 E2E 테스트는 없습니다.
+- 페이지네이션 인자(`page`, `limit`)는 받기만 하고 적용하지 않습니다.
+- 원본 크기 이미지를 그대로 내려보냅니다. 썸네일 생성이 없습니다.
+
+다음에 손댄다면 순서는 (1) resolver를 `databaseManager`로 통일하고 MongoDB 연결 흐름 수정, (2) 썸네일과 페이지네이션, (3) 인증입니다.
 
 ---
 
-## 📈 Future Development Roadmap
+## 개발 기록
 
-1. Complete API integration with cloud storage solutions.
-2. Build a data management system using GraphQL.
-3. Add color analysis and preprocessing using WebGPU.
-4. Develop a system for 3D visualization of outputs.
+| 시기 | 내용 | 도구 |
+| --- | --- | --- |
+| 2025-01 ~ 2025-02 | 설계와 구현 전체. 커밋 82개 | AI 도구 없이 1인 개발 |
+| 2026-11 | 테스트 수정, CI 추가, lint 정리, 문서 정리 | Claude Code 사용 |
+
+2026-11 정리 작업의 구분은 다음과 같습니다.
+
+**직접 판단한 것**
+
+- 작업 범위: 기능을 늘리지 않고, clone해서 테스트를 돌렸을 때 문제가 없게 만드는 것까지만
+- 테스트가 샘플 폴더와 Git LFS에 의존하지 않도록 fixture를 따로 두기로 한 것
+- 샘플을 줄인 뒤에는 Git LFS를 걷어내고 일반 파일로 관리하기로 한 것 (clone만 하면 갤러리가 보이도록)
+- README에서 구현된 것과 계획을 분리하고, 실제 코드에 없는 기술을 스택에서 내리기로 한 것
+- 저장소·패키지·Docker 이름을 `image-insight`로 통일
+- 원래 코드와 AI 도구를 쓴 작업을 구분해서 기록하기로 한 것
+- 회고 문서(`retrospect.md`)와 샘플 이미지 처리는 자동으로 고치지 않고 직접 검토해서 결정
+- 샘플에서 인물 사진을 빼고 고양이 사진으로 통일, 장비 일련번호는 제거하고 저작권 표기는 유지
+
+**Claude Code가 한 것** (검토 후 반영)
+
+- 테스트 실패 원인 분석: ESM 모드에서 `jest` 전역이 없는 문제, 당시 Git LFS 포인터로 남은 샘플을 sharp가 읽지 못하던 문제, 모듈 상태 때문에 실패 케이스 테스트가 스파이를 타지 않는 문제
+- sharp로 합성 fixture 이미지 생성([`tests/fixtures/generate.mjs`](tests/fixtures/generate.mjs)), 테스트가 fixture를 보도록 수정
+- ESLint 설정 오류 수정과 `any` 타입 정리(동작 변경 없음), Next.js 15의 `searchParams` 타입 수정
+- GitHub Actions 워크플로 작성
+- README 초안 작성, MongoDB 분기가 실제로는 도달하지 않는다는 점 확인
+- 샘플 이미지의 EXIF 개인정보 점검 스크립트 실행과 결과 정리, 샘플 리사이즈와 일련번호 제거 처리
+- 서버 시작 직후 첫 GraphQL 응답이 비어 나가던 문제 수정
+
+2025년 당시의 회고는 [`retrospect.md`](retrospect.md)에 있습니다.

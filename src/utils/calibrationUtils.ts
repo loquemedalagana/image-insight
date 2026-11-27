@@ -49,7 +49,17 @@ export const processOrientation = (orientation: string): number => {
 /**
  * 원시 EXIF 데이터를 받아서 캘리브레이션된 데이터 객체로 변환합니다.
  */
-export const calibrateExifData = (rawExif: any): CalibratedExifData => {
+export interface RawExifData {
+  Make: string;
+  Model: string;
+  FocalLength: number;
+  XResolution: number;
+  YResolution: number;
+  ResolutionUnit: string;
+  Orientation: string;
+}
+
+export const calibrateExifData = (rawExif: RawExifData): CalibratedExifData => {
   return {
     make: rawExif.Make,
     model: rawExif.Model,
