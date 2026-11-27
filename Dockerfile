@@ -1,5 +1,5 @@
-# Node.js 18 LTS 기반
-FROM node:18
+# Node.js 22 LTS 기반 (sharp 0.35, Apollo Server 5가 Node 20.9 이상을 요구)
+FROM node:22
 
 # 작업 디렉토리 설정
 WORKDIR /usr/src/app
