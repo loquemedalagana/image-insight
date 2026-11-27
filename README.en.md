@@ -197,7 +197,7 @@ At the time, my local machine ran Node 22 and the assumed target environment ran
 - Storage is an in-memory mockDB, so data is lost on restart. The MongoDB adapter is incomplete.
 - Resolvers call mockDB directly, so there are two data paths: the resolvers and the `databaseManager` abstraction.
 - Tests focus on server-side logic. There are no component tests or E2E tests.
-- There is no pagination. The page arguments (`page`, `limit`) are accepted but not applied.
+- There is no pagination. The GraphQL schema has no paging arguments, and the page reads `page` and `limit` from the URL but does not pass them to the API.
 - The 2000px samples are served as is. There are no thumbnails.
 - `npm audit` still reports transitive dependency warnings from a development tool (the graphql-codegen 5 line). The major upgrade changes the shape of the generated types, so it is on hold. One item can only be resolved by moving to Next.js 16.
 
