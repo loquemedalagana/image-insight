@@ -7,16 +7,16 @@
 구현됨
 
 - `public/samples` 폴더를 재귀 순회해 메타데이터(크기·포맷·용량·EXIF) 추출. 폴더 이름이 카테고리가 된다.
-- GraphQL API(`/api/graphql`): `metadata`(카테고리·파일명 필터), `metadataById`, `getCategoryList`, `addMetadata`, `addCategory`, `deleteMetadataById`
+- GraphQL API(`/api/graphql`): `metadata`(카테고리·파일명 필터), `metadataById`, `getCategoryList`, `getCategoryById`, `addMetadata`(샘플 폴더 안의 경로만 허용), `addCategory`, `deleteMetadataById`
 - `/api/init-db`: 메타데이터를 읽어 DB를 초기화
 - 메모리 mockDB(기본 저장소)
 - 갤러리 화면: 서버 컴포넌트에서 Apollo Client로 조회, 카테고리 필터, masonry 목록
-- Jest 테스트 4개 파일, Docker/Compose 개발 환경, GitHub Actions CI
+- Jest 테스트 5개 파일(18개), Docker/Compose 개발 환경, GitHub Actions CI
 
 계획만 있음(코드 없음 또는 스키마만 있음)
 
 - MongoDB: `src/lib/mongoDB.ts`, `databaseManager.ts`에 어댑터 코드는 있지만 `isMongoConnected()`가 true가 되는 경로가 없어 실제로는 항상 mockDB를 쓴다. resolver는 `mockDatabase`를 직접 호출한다.
-- NeRF 관련 타입/쿼리/뮤테이션(`nerfImages`, `startNerfPreprocessing` 등)과 `getCategoryById`: 스키마에만 있고 resolver가 없다.
+- NeRF 전처리: 2026-11에 resolver 없는 스키마 정의를 제거했다. 지금은 스키마에도 없다.
 - `src/utils/calibrationUtils.ts`: 뼈대만 있고 어디서도 호출하지 않는다.
 - CR3 처리, 얼굴 인식(face-api.js), TensorFlow.js, 클라우드 스토리지(B2/Wasabi), Neo4j, WebGPU: 코드와 의존성 모두 없음.
 - 업로드 UI, 인증, 배포: 없음.
@@ -59,6 +59,9 @@ public/samples/          샘플 이미지 (일반 파일, 폴더 이름이 카�
 
 - 스키마 우선: `src/graphql/schema/types.graphql`을 먼저 고치고 `npm run codegen`으로 `src/__generated__/graphql.ts`를 다시 만든다.
 - `src/__generated__/` 아래 파일은 직접 고치지 않는다.
+- 스키마에 Query/Mutation 필드를 추가하면 resolver도 같이 추가한다. `tests/api/schema-resolvers.test.ts`가 둘의 일치를 검사한다. resolver 없는 필드를 스키마에 미리 적어 두지 않는다.
+- 클라이언트가 보낸 파일 경로는 `resolveSamplePath`(`src/utils/fileUtils.ts`)로 검증한 뒤에만 읽는다.
+- introspection은 production에서 꺼진다. `csrfPrevention: true`는 유지한다.
 - 클라이언트에서 쓰는 쿼리는 `src/graphql/documents/*.graphql`에 추가하고 codegen이 만든 Document/훅을 쓴다.
 
 ## Git 규칙
