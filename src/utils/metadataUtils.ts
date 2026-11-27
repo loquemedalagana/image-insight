@@ -22,7 +22,11 @@ export const extractPhotoMetadata = async (
     const stats = await fs.stat(filePath);
 
     // exifr를 활용하여 EXIF 데이터 추출
-    const exifData = (await processExif(filePath)) || {};
+    // EXIF가 없거나 읽지 못하면 processExif는 { message }를 돌려준다. 이 경우 exif는 null로 둔다.
+    // (스키마의 Metadata.exif는 nullable이고, ExifData에는 non-null 필드가 있어서 { message }를 그대로 넣으면 조회 시 오류가 난다)
+    const exifResult = await processExif(filePath);
+    const exifData =
+      exifResult && !('message' in exifResult) ? exifResult : null;
 
     // ✅ 카테고리 자동 추출 (파일 경로 기준)
     const resolvedCategoryName =

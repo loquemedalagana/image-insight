@@ -11,7 +11,7 @@ A full-stack personal project on Next.js 15 that extracts image information and 
 | Item | Details |
 | --- | --- |
 | Role | Solo developer. I wrote the schema, API, metadata extraction logic, UI, tests and Docker setup myself |
-| Period | 2025-01 to 2025-02 (82 commits, written without AI tools) / 2026-11 test, CI and docs cleanup (with Claude Code) |
+| Period | 2025-01 to 2025-02 development (82 commits, written without AI tools) / 2026-11 maintenance: test recovery, CI, dependency and security updates, schema cleanup (with Claude Code) |
 | Core stack | TypeScript, Next.js 15 (App Router), React 19, Apollo Server and Client (GraphQL), graphql-codegen, sharp, exifr, Jest, Docker |
 | Status | Local prototype. Not deployed, no operations, no authentication. Storage is an in-memory mockDB |
 
@@ -25,19 +25,21 @@ A full-stack personal project on Next.js 15 that extracts image information and 
 
 - **Metadata extraction**: walks the JPG files under `public/samples` recursively, reads size and format with sharp and EXIF (camera, lens, exposure, capture time, resolution and so on) with exifr, and merges them into one record. The folder name becomes the category.
 - **GraphQL API** (`/api/graphql`)
-  - Query: `metadata` (filter by category and file name), `metadataById`, `getCategoryList`
+  - Query: `metadata` (filter by category and file name), `metadataById`, `getCategoryList`, `getCategoryById`
   - Mutation: `addMetadata`, `addCategory`, `deleteMetadataById`
+  - Every Query and Mutation field in the schema has a resolver, and a test checks this.
+  - `addMetadata` only accepts file paths inside the sample folder.
 - **DB init endpoint** (`/api/init-db`): loads the extracted metadata into the store
 - **Gallery page**: queries with Apollo Client in a server component, category filter driven by the URL query, masonry list
-- **Tests and CI**: 9 Jest tests (GraphQL API, DB init, extraction pipeline, EXIF parsing). GitHub Actions runs lint and tests
+- **Tests and CI**: 19 Jest tests (GraphQL API, schema and resolver match, path validation, DB init, extraction pipeline, EXIF parsing). GitHub Actions runs lint and tests
 - **Docker/Compose** development environment
 
 ## Planned (not implemented)
 
-These items have no code, or only a schema definition.
+These items have no code, or only a skeleton.
 
 - Using MongoDB as the real store (only adapter code exists; see the tech stack section)
-- NeRF preprocessing types, queries and mutations (defined in the GraphQL schema, no resolvers)
+- NeRF preprocessing (it used to exist only as schema definitions without resolvers; removed from the schema in 2026-11)
 - EXIF-based calibration (`calibrationUtils.ts` is a skeleton)
 - RAW formats such as CR3 (WebAssembly)
 - Face recognition (face-api.js), in-browser image classification (TensorFlow.js)
@@ -153,7 +155,7 @@ docker run -p 3000:3000 image-insight
 ### 3. Tests, lint, codegen
 
 ```bash
-npm test          # 9 Jest tests (uses tests/fixtures)
+npm test          # 19 Jest tests (uses tests/fixtures)
 npm run lint      # ESLint
 npm run codegen   # types.graphql → src/__generated__/graphql.ts
 npm run build     # production build
@@ -163,14 +165,22 @@ npm run build     # production build
 
 ## Design notes
 
-**1. Schema-first GraphQL with codegen**
-[`types.graphql`](src/graphql/schema/types.graphql) is the single source. [`codegen.yml`](codegen.yml) generates the server types and client documents into [`src/__generated__/graphql.ts`](src/__generated__/graphql.ts). The resolvers, mockDB and UI components share the same `Metadata` and `Category` types, so a schema change shows up at compile time wherever it matters.
+**1. GraphQL: schema-first design and checks**
+
+- **Schema first, with codegen**: [`types.graphql`](src/graphql/schema/types.graphql) is the single source. [`codegen.yml`](codegen.yml) generates the server types and client documents into [`src/__generated__/graphql.ts`](src/__generated__/graphql.ts). The resolvers, mockDB and UI components share the same `Metadata` and `Category` types, so a schema change shows up at compile time wherever it matters.
+- **A test keeps the schema and resolvers in sync**: [`schema-resolvers.test.ts`](tests/api/schema-resolvers.test.ts) parses the schema, collects the Query and Mutation field names, and compares them with the keys of [`resolvers`](src/graphql/resolvers/index.ts). A field without a resolver just returns `null` and is easy to miss, so changing only one side now fails the test.
+- **Input path validation**: the file path passed to `addMetadata` goes through [`resolveSamplePath`](src/utils/fileUtils.ts), which rejects paths outside the sample folder (`../`, absolute paths elsewhere, missing files). [`graphql.test.ts`](tests/api/graphql.test.ts) covers the accepted and rejected cases.
+
+The next two are one-line Apollo Server settings in [`server.ts`](src/app/api/graphql/server.ts).
+
+- **Introspection by environment**: schema introspection is allowed only when `NODE_ENV` is not `production`. This states Apollo Server's default behavior explicitly (it used to be always on). It is off under `next start`, and on in the dev server and in Docker, which runs in development mode.
+- **csrfPrevention**: Apollo Server's default (on), stated explicitly. There is no cookie-based authentication, so the CSRF risk is low today; the setting is there for when authentication is added.
 
 **2. Directory traversal with async generators**
 `getAllImagesAsync` in [`fileUtils.ts`](src/utils/fileUtils.ts) and `walkDirAsync` in [`extractMetadataFromLocal.ts`](src/lib/extractMetadataFromLocal.ts) recurse into subfolders with `yield*` and emit one file at a time. Files are processed one by one with `for await` instead of building the full path list first, and a file that fails is logged and skipped.
 
 **3. Handling files without EXIF**
-[`processExif.ts`](src/lib/processExif.ts) returns a `{ message }` object instead of throwing when a file has no EXIF or parsing fails. When EXIF exists, each field gets a default so the response shape stays the same. Both cases are covered with fixture images in [`processExif.test.ts`](tests/lib/processExif.test.ts).
+[`processExif.ts`](src/lib/processExif.ts) returns a `{ message }` object instead of throwing when a file has no EXIF or parsing fails. When EXIF exists, each field gets a default so the response shape stays the same. For a file without EXIF, [`metadataUtils.ts`](src/utils/metadataUtils.ts) stores `exif` as `null`, which matches the nullable `exif` in the schema. Both cases are covered with fixture images in [`processExif.test.ts`](tests/lib/processExif.test.ts) and [`graphql.test.ts`](tests/api/graphql.test.ts).
 
 **4. Docker to pin the Node version**
 At the time, my local machine ran Node 22 and the assumed target environment ran Node 18, so the [`Dockerfile`](Dockerfile) and [`docker-compose.yml`](docker-compose.yml) pin the runtime. The image was moved to `node:22` in the 2026-11 dependency update. Source is mounted as a volume, and `node_modules` stays inside the container.
@@ -179,12 +189,15 @@ At the time, my local machine ran Node 22 and the assumed target environment ran
 
 ## Limitations and next steps
 
-- This repository has no deployment or operations history. It has only run locally and in the Docker dev environment.
-- There is no authentication or authorization. `addMetadata` takes a server file path as is, so the API must not be exposed publicly.
+- This repository has no deployment or operations. It has only run locally and in the Docker dev environment.
+- There is no authentication or authorization. The `addMetadata` path is limited to the sample folder, but anyone can call the mutations, so authentication has to come before any public exposure.
+- There is no query depth or complexity limit.
+- There is no DataLoader (N+1 prevention).
+- There is no structured logging or monitoring, only `console.log`.
 - Storage is an in-memory mockDB, so data is lost on restart. The MongoDB adapter is incomplete.
 - Resolvers call mockDB directly, so there are two data paths: the resolvers and the `databaseManager` abstraction.
 - Tests focus on server-side logic. There are no component tests or E2E tests.
-- The pagination arguments (`page`, `limit`) are accepted but not applied.
+- There is no pagination. The page arguments (`page`, `limit`) are accepted but not applied.
 - The 2000px samples are served as is. There are no thumbnails.
 - `npm audit` still reports transitive dependency warnings from a development tool (the graphql-codegen 5 line). The major upgrade changes the shape of the generated types, so it is on hold. One item can only be resolved by moving to Next.js 16.
 
@@ -197,9 +210,18 @@ If I pick this up again, the order would be: (1) route the resolvers through `da
 | When | What | Tools |
 | --- | --- | --- |
 | 2025-01 to 2025-02 | All design and implementation. 82 commits | Solo, no AI tools |
-| 2026-11 | Test fixes, CI, lint cleanup, documentation, new samples, dependency security updates | Claude Code |
+| 2026-11 | Maintenance (table below) | Claude Code |
 
-For the 2026-11 cleanup, the split was as follows.
+The 2026-11 maintenance work:
+
+| Step | What was done |
+| --- | --- |
+| [PR #1](https://github.com/loquemedalagana/image-insight/pull/1) | Recovered the broken tests (4 of 9 failing → all passing), fixed the lint config, added CI, rewrote the README, replaced the sample images |
+| [PR #2](https://github.com/loquemedalagana/image-insight/pull/2) | Dependency and security updates (Next.js 15.5, Apollo Server 5, sharp 0.35), move to Node 22, removal of unused dependencies |
+| [PR #3](https://github.com/loquemedalagana/image-insight/pull/3) | README screenshots |
+| Schema cleanup | Removed schema items without resolvers, implemented `getCategoryById`, added the schema and resolver match test, environment-based introspection, path validation for `addMetadata`, a fix for the error on files without EXIF |
+
+In this maintenance work, the split between me and the AI tool was as follows.
 
 **Decisions I made**
 
@@ -211,6 +233,8 @@ For the 2026-11 cleanup, the split was as follows.
 - Recording the original code and the AI-assisted work separately
 - Reviewing the retrospective (`retrospect.md`) and the handling of sample images myself instead of letting them be changed automatically
 - Removing photos of people from the samples and using only cat photos, removing device serial numbers and keeping the copyright notice
+- Staying on Next.js 15 and applying security patches only, and putting the breaking major upgrade (codegen 8) on hold
+- Removing schema items without resolvers, and enforcing the match with a test so it cannot drift again
 
 **Work done by Claude Code** (reviewed before merging)
 
@@ -221,5 +245,7 @@ For the 2026-11 cleanup, the split was as follows.
 - Drafting the README, and confirming that the MongoDB code never actually runs
 - Running the EXIF privacy check on the sample images and summarizing the result, then resizing the samples and removing serial numbers
 - Fixing the first GraphQL response being empty right after server start
+- Updating dependencies and reducing `npm audit` findings (80 → 30), and checking for unused dependencies
+- Cleaning up the schema, writing `getCategoryById` and the schema and resolver match test, and proposing and implementing path validation for `addMetadata`
 
 The original retrospective from 2025 is in [`retrospect.md`](retrospect.md) (Korean).

@@ -1,14 +1,11 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { extractPhotoMetadata } from '@/utils/metadataUtils';
+import { getSamplesDir } from '@/utils/fileUtils';
 import { mockDatabase } from '@/lib/mockDB';
 import { Metadata, Category } from '__generated__/graphql';
 
-// 기본은 public/samples. 테스트에서는 SAMPLES_DIR로 테스트 전용 fixture 폴더를 가리킨다.
-const samplesDir = path.resolve(
-  process.cwd(),
-  process.env.SAMPLES_DIR || 'public/samples',
-);
+const samplesDir = getSamplesDir();
 
 // ✅ Generator를 사용하여 디렉토리를 탐색 (카테고리 ID 미리 처리)
 async function* walkDirAsync(

@@ -1,5 +1,7 @@
 import { mockDatabase } from '@/lib/mockDB';
+import { GraphQLError } from 'graphql';
 import { extractPhotoMetadata } from '@/utils/metadataUtils';
+import { resolveSamplePath } from '@/utils/fileUtils';
 import {
   Metadata,
   MetadataSearchCondition,
@@ -56,6 +58,11 @@ export const resolvers = {
 
       return Array.from(categoryMap.values()); // ✅ 중복 제거 후 반환
     },
+
+    // ID로 카테고리 조회 (없으면 null)
+    getCategoryById: async (_: unknown, { id }: { id: string }) => {
+      return mockDatabase.findCategoryById(id);
+    },
   },
 
   Mutation: {
@@ -63,8 +70,19 @@ export const resolvers = {
       _: unknown,
       { filePath, categoryIds }: { filePath: string; categoryIds: string[] },
     ) => {
+      // 서버의 임의 파일을 읽지 못하도록 샘플 폴더 안의 경로만 받는다.
+      let safePath: string;
       try {
-        const photo = await extractPhotoMetadata(filePath);
+        safePath = await resolveSamplePath(filePath);
+      } catch (error) {
+        throw new GraphQLError(
+          error instanceof Error ? error.message : 'Invalid filePath',
+          { extensions: { code: 'BAD_USER_INPUT' } },
+        );
+      }
+
+      try {
+        const photo = await extractPhotoMetadata(safePath);
 
         // ✅ categoryIds를 기반으로 실제 카테고리 객체 찾기
         const categories = categoryIds

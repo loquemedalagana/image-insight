@@ -183,4 +183,134 @@ describe('GraphQL API Tests', () => {
       throw new Error('Unexpected incremental response');
     }
   });
+
+  it('should fetch a category by ID', async () => {
+    const categories = await mockDatabase.findAllCategories();
+    expect(categories.length).toBeGreaterThan(0);
+    const target = categories[0];
+
+    const GET_CATEGORY_BY_ID = gql`
+      query GetCategoryById($id: ID!) {
+        getCategoryById(id: $id) {
+          id
+          name
+        }
+      }
+    `;
+
+    const result: GraphQLResponse = await server.executeOperation({
+      query: GET_CATEGORY_BY_ID,
+      variables: { id: target.id },
+    });
+
+    if (result.body.kind !== 'single') {
+      throw new Error('Unexpected incremental response');
+    }
+    expect(result.body.singleResult.errors).toBeUndefined();
+    expect(result.body.singleResult.data?.getCategoryById).toEqual({
+      id: target.id,
+      name: target.name,
+    });
+  });
+
+  it('should return null for an unknown category ID', async () => {
+    const result: GraphQLResponse = await server.executeOperation({
+      query: gql`
+        query GetCategoryById($id: ID!) {
+          getCategoryById(id: $id) {
+            id
+            name
+          }
+        }
+      `,
+      variables: { id: 'no-such-category' },
+    });
+
+    if (result.body.kind !== 'single') {
+      throw new Error('Unexpected incremental response');
+    }
+    expect(result.body.singleResult.errors).toBeUndefined();
+    expect(result.body.singleResult.data?.getCategoryById).toBeNull();
+  });
+
+  it('returns exif as null for a file without EXIF, without errors', async () => {
+    const result: GraphQLResponse = await server.executeOperation({
+      query: gql`
+        query GetExif {
+          metadata(searchCondition: {}) {
+            fileName
+            exif {
+              make
+              whitePoint
+              primaryChromaticities
+            }
+          }
+        }
+      `,
+    });
+
+    if (result.body.kind !== 'single') {
+      throw new Error('Unexpected incremental response');
+    }
+    // non-null 필드(whitePoint, primaryChromaticities)를 조회해도 오류가 없어야 한다.
+    expect(result.body.singleResult.errors).toBeUndefined();
+
+    const metadata = result.body.singleResult.data?.metadata as Metadata[];
+    const withExif = metadata.find((m) => m.fileName === 'with-exif.jpg');
+    const noExif = metadata.find((m) => m.fileName === 'no-exif.jpg');
+
+    expect(noExif).toBeDefined();
+    expect(noExif?.exif).toBeNull();
+    expect(withExif?.exif?.make).toBe('FixtureCam');
+    expect(withExif?.exif?.whitePoint).toHaveLength(2);
+    expect(withExif?.exif?.primaryChromaticities).toHaveLength(6);
+  });
+
+  describe('addMetadata filePath validation', () => {
+    const ADD_METADATA = gql`
+      mutation AddMetadata($filePath: String!, $categoryIds: [ID!]!) {
+        addMetadata(filePath: $filePath, categoryIds: $categoryIds) {
+          id
+          fileName
+        }
+      }
+    `;
+
+    const run = async (filePath: string) => {
+      const result: GraphQLResponse = await server.executeOperation({
+        query: ADD_METADATA,
+        variables: { filePath, categoryIds: [] },
+      });
+      if (result.body.kind !== 'single') {
+        throw new Error('Unexpected incremental response');
+      }
+      return result.body.singleResult;
+    };
+
+    it('accepts a file inside the samples directory', async () => {
+      const before = (await mockDatabase.findAll()).length;
+      const result = await run('tests/fixtures/samples/plain/no-exif.jpg');
+
+      expect(result.errors).toBeUndefined();
+      expect((result.data?.addMetadata as Partial<Metadata>)?.fileName).toBe(
+        'no-exif.jpg',
+      );
+      expect((await mockDatabase.findAll()).length).toBe(before + 1);
+    });
+
+    it.each([
+      ['parent traversal', 'tests/fixtures/samples/../../../package.json'],
+      ['file outside the samples directory', 'package.json'],
+      ['absolute path outside', '/etc/hosts'],
+      ['missing file inside', 'tests/fixtures/samples/plain/nope.jpg'],
+    ])('rejects %s', async (_label, filePath) => {
+      const before = (await mockDatabase.findAll()).length;
+      const result = await run(filePath);
+
+      expect(result.data?.addMetadata).toBeNull();
+      expect(result.errors?.[0].extensions?.code).toBe('BAD_USER_INPUT');
+      expect(result.errors?.[0].message).toMatch(/samples directory/);
+      expect((await mockDatabase.findAll()).length).toBe(before);
+    });
+  });
 });
