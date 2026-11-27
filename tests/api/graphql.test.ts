@@ -232,4 +232,52 @@ describe('GraphQL API Tests', () => {
     expect(result.body.singleResult.errors).toBeUndefined();
     expect(result.body.singleResult.data?.getCategoryById).toBeNull();
   });
+
+  describe('addMetadata filePath validation', () => {
+    const ADD_METADATA = gql`
+      mutation AddMetadata($filePath: String!, $categoryIds: [ID!]!) {
+        addMetadata(filePath: $filePath, categoryIds: $categoryIds) {
+          id
+          fileName
+        }
+      }
+    `;
+
+    const run = async (filePath: string) => {
+      const result: GraphQLResponse = await server.executeOperation({
+        query: ADD_METADATA,
+        variables: { filePath, categoryIds: [] },
+      });
+      if (result.body.kind !== 'single') {
+        throw new Error('Unexpected incremental response');
+      }
+      return result.body.singleResult;
+    };
+
+    it('accepts a file inside the samples directory', async () => {
+      const before = (await mockDatabase.findAll()).length;
+      const result = await run('tests/fixtures/samples/plain/no-exif.jpg');
+
+      expect(result.errors).toBeUndefined();
+      expect((result.data?.addMetadata as Partial<Metadata>)?.fileName).toBe(
+        'no-exif.jpg',
+      );
+      expect((await mockDatabase.findAll()).length).toBe(before + 1);
+    });
+
+    it.each([
+      ['parent traversal', 'tests/fixtures/samples/../../../package.json'],
+      ['file outside the samples directory', 'package.json'],
+      ['absolute path outside', '/etc/hosts'],
+      ['missing file inside', 'tests/fixtures/samples/plain/nope.jpg'],
+    ])('rejects %s', async (_label, filePath) => {
+      const before = (await mockDatabase.findAll()).length;
+      const result = await run(filePath);
+
+      expect(result.data?.addMetadata).toBeNull();
+      expect(result.errors?.[0].extensions?.code).toBe('BAD_USER_INPUT');
+      expect(result.errors?.[0].message).toMatch(/samples directory/);
+      expect((await mockDatabase.findAll()).length).toBe(before);
+    });
+  });
 });
