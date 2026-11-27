@@ -31,7 +31,7 @@ npm test          # Jest (ESM 모드)
 npm run codegen   # GraphQL 타입·훅 생성 → src/__generated__/graphql.ts
 ```
 
-- 화면은 `NEXT_PUBLIC_BASE_URL`(예: `http://localhost:3000`)이 설정되어 있어야 `/api/init-db`를 호출할 수 있다.
+- 화면은 `src/config.ts`의 `BASE_URL`로 자기 API를 호출한다. 기본값은 `http://localhost:3000`이고, 다른 포트·주소에서는 `NEXT_PUBLIC_BASE_URL`로 바꾼다.
 - 테스트는 ESM 모드(`node --experimental-vm-modules`)로 돈다. `jest` 전역이 없으므로 `jest.fn`, `jest.spyOn` 등을 쓸 때는 `import { jest } from '@jest/globals'`로 가져온다. `describe`/`it`/`expect`는 전역 그대로 쓴다.
 - 테스트는 `tests/setupEnv.ts`에서 `SAMPLES_DIR=tests/fixtures/samples`를 지정한다. fixture는 `node tests/fixtures/generate.mjs`로 다시 만들 수 있다.
 - Node 버전: CI는 `.nvmrc`(20), Docker 이미지는 `node:18`.

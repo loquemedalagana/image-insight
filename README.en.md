@@ -131,10 +131,10 @@ Node.js 20 is recommended (`.nvmrc`).
 
 ```bash
 npm ci
-NEXT_PUBLIC_BASE_URL=http://localhost:3000 npm run dev
+npm run dev
 ```
 
-The gallery is at `http://localhost:3000` and the GraphQL endpoint is at `http://localhost:3000/api/graphql`. `NEXT_PUBLIC_BASE_URL` is required because the page uses it to call its own API.
+The gallery is at `http://localhost:3000` and the GraphQL endpoint is at `http://localhost:3000/api/graphql`. The page calls its own API at `http://localhost:3000`. Set `NEXT_PUBLIC_BASE_URL` only when you run it on a different port or host.
 
 ### 2. Run with Docker
 
@@ -146,7 +146,7 @@ Without Compose:
 
 ```bash
 docker build -t image-insight .
-docker run -p 3000:3000 -e NEXT_PUBLIC_BASE_URL=http://localhost:3000 image-insight
+docker run -p 3000:3000 image-insight
 ```
 
 ### 3. Tests, lint, codegen
@@ -155,7 +155,7 @@ docker run -p 3000:3000 -e NEXT_PUBLIC_BASE_URL=http://localhost:3000 image-insi
 npm test          # 9 Jest tests (no LFS needed)
 npm run lint      # ESLint
 npm run codegen   # types.graphql → src/__generated__/graphql.ts
-npm run build     # production build (needs NEXT_PUBLIC_BASE_URL)
+npm run build     # production build
 ```
 
 ---

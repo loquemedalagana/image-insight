@@ -131,10 +131,10 @@ Node.js 20 권장(`.nvmrc`).
 
 ```bash
 npm ci
-NEXT_PUBLIC_BASE_URL=http://localhost:3000 npm run dev
+npm run dev
 ```
 
-`http://localhost:3000`에서 갤러리를, `http://localhost:3000/api/graphql`에서 GraphQL 엔드포인트를 쓸 수 있습니다. `NEXT_PUBLIC_BASE_URL`은 페이지가 자기 API를 호출할 때 쓰므로 꼭 지정해야 합니다.
+`http://localhost:3000`에서 갤러리를, `http://localhost:3000/api/graphql`에서 GraphQL 엔드포인트를 쓸 수 있습니다. 페이지는 자기 API를 `http://localhost:3000`으로 호출합니다. 다른 포트나 주소로 띄울 때만 `NEXT_PUBLIC_BASE_URL`을 지정하면 됩니다.
 
 ### 2. Docker 실행
 
@@ -146,7 +146,7 @@ Compose 없이 실행하려면:
 
 ```bash
 docker build -t image-insight .
-docker run -p 3000:3000 -e NEXT_PUBLIC_BASE_URL=http://localhost:3000 image-insight
+docker run -p 3000:3000 image-insight
 ```
 
 ### 3. 테스트, lint, codegen
@@ -155,7 +155,7 @@ docker run -p 3000:3000 -e NEXT_PUBLIC_BASE_URL=http://localhost:3000 image-insi
 npm test          # Jest 9개 테스트 (LFS 불필요)
 npm run lint      # ESLint
 npm run codegen   # types.graphql → src/__generated__/graphql.ts
-npm run build     # 프로덕션 빌드 (NEXT_PUBLIC_BASE_URL 필요)
+npm run build     # 프로덕션 빌드
 ```
 
 ---

@@ -1,4 +1,5 @@
 import client from '@/lib/apolloClient';
+import { BASE_URL } from '@/config';
 import {
   Category,
   Exact,
@@ -25,13 +26,10 @@ export default async function Home({
 }) {
   try {
     // ✅ 1. 먼저 `/api/init-db` 호출하여 데이터베이스 초기화
-    const initDbRes = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/init-db`,
-      {
-        method: 'GET',
-        cache: 'no-store',
-      },
-    );
+    const initDbRes = await fetch(`${BASE_URL}/api/init-db`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
 
     const initDbStatus = await initDbRes.json();
 
