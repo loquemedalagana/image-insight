@@ -18,7 +18,8 @@ async function initializeDatabase() {
 }
 
 // ✅ 서버가 처음 실행될 때 데이터 초기화
-initializeDatabase().catch(console.error);
+// route.ts가 첫 요청을 처리하기 전에 이 Promise를 기다린다 (로딩 중 빈 결과가 나가지 않도록)
+export const databaseReady = initializeDatabase().catch(console.error);
 
 // Apollo Server 생성 함수
 export const createServer = () => {
