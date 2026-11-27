@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import { BASE_URL } from '@/config';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -13,6 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // opengraph-image의 절대 URL을 만들 때 쓰는 기준 주소
+  metadataBase: new URL(BASE_URL),
   title: 'Image Insight',
   description:
     'This project is designed to extract and manage image metadata, focusing on building a scalable system for JPG files.',
