@@ -31,7 +31,7 @@
   - `addMetadata`는 샘플 폴더 안의 파일 경로만 받습니다.
 - **DB 초기화 엔드포인트** (`/api/init-db`): 추출한 메타데이터를 저장소에 적재
 - **갤러리 화면**: 서버 컴포넌트에서 Apollo Client로 조회, URL 쿼리 기반 카테고리 필터, masonry 목록
-- **테스트와 CI**: Jest 테스트 18개(GraphQL API, 스키마·resolver 일치, 경로 검증, DB 초기화, 추출 파이프라인, EXIF 파싱). GitHub Actions에서 lint와 테스트 실행
+- **테스트와 CI**: Jest 테스트 19개(GraphQL API, 스키마·resolver 일치, 경로 검증, DB 초기화, 추출 파이프라인, EXIF 파싱). GitHub Actions에서 lint와 테스트 실행
 - **Docker/Compose** 개발 환경
 
 ## 계획 (미구현)
@@ -155,7 +155,7 @@ docker run -p 3000:3000 image-insight
 ### 3. 테스트, lint, codegen
 
 ```bash
-npm test          # Jest 18개 테스트 (tests/fixtures 사용)
+npm test          # Jest 19개 테스트 (tests/fixtures 사용)
 npm run lint      # ESLint
 npm run codegen   # types.graphql → src/__generated__/graphql.ts
 npm run build     # 프로덕션 빌드
@@ -180,7 +180,7 @@ npm run build     # 프로덕션 빌드
 [`fileUtils.ts`](src/utils/fileUtils.ts)의 `getAllImagesAsync`와 [`extractMetadataFromLocal.ts`](src/lib/extractMetadataFromLocal.ts)의 `walkDirAsync`는 `yield*`로 하위 폴더를 재귀 순회하며 파일을 하나씩 내보냅니다. 전체 경로 목록을 먼저 만들지 않고 `for await`로 한 장씩 처리하며, 한 파일이 실패해도 로그만 남기고 다음 파일로 넘어갑니다.
 
 **3. EXIF가 없는 파일 예외 처리**
-[`processExif.ts`](src/lib/processExif.ts)는 EXIF가 없거나 파싱에 실패해도 예외를 던지지 않고 `{ message }` 객체를 반환합니다. EXIF가 있을 때도 필드마다 기본값을 채워 응답 형태를 일정하게 유지합니다. 두 경우 모두 [`processExif.test.ts`](tests/lib/processExif.test.ts)에서 fixture 이미지로 검증합니다.
+[`processExif.ts`](src/lib/processExif.ts)는 EXIF가 없거나 파싱에 실패해도 예외를 던지지 않고 `{ message }` 객체를 반환합니다. EXIF가 있을 때도 필드마다 기본값을 채워 응답 형태를 일정하게 유지합니다. EXIF가 없는 파일은 [`metadataUtils.ts`](src/utils/metadataUtils.ts)에서 `exif`를 `null`로 저장해, 스키마의 nullable `exif`와 맞춥니다. 두 경우 모두 [`processExif.test.ts`](tests/lib/processExif.test.ts)와 [`graphql.test.ts`](tests/api/graphql.test.ts)에서 fixture 이미지로 검증합니다.
 
 **4. Docker로 Node 버전 통일**
 개발 당시 로컬은 Node 22, 배포를 가정한 환경은 Node 18이어서 [`Dockerfile`](Dockerfile)과 [`docker-compose.yml`](docker-compose.yml)로 실행 환경을 고정했습니다. 2026-11 의존성 업데이트 때 이미지를 `node:22`로 올렸습니다. 소스는 볼륨으로 연결하고 `node_modules`는 컨테이너 것을 쓰도록 분리했습니다.
@@ -194,7 +194,6 @@ npm run build     # 프로덕션 빌드
 - 쿼리 깊이·복잡도 제한이 없습니다.
 - DataLoader(N+1 방지)가 없습니다.
 - 구조화된 로깅과 모니터링이 없습니다. `console.log`만 씁니다.
-- EXIF가 없는 파일은 GraphQL에서 `exif.whitePoint` 같은 non-null 필드를 조회하면 오류가 납니다. 스키마와 반환값이 어긋난 부분으로, 아직 고치지 않았습니다.
 - 저장소가 메모리 mockDB라서 서버를 재시작하면 데이터가 사라집니다. MongoDB 어댑터는 미완성입니다.
 - resolver가 mockDB를 직접 호출해서 `databaseManager` 추상화와 경로가 둘로 나뉘어 있습니다.
 - 테스트는 서버 쪽 로직 중심입니다. 화면 컴포넌트 테스트와 E2E 테스트는 없습니다.
@@ -220,7 +219,7 @@ npm run build     # 프로덕션 빌드
 | [PR #1](https://github.com/loquemedalagana/image-insight/pull/1) | 깨져 있던 테스트 복구(9개 중 4개 실패 → 전부 통과), lint 설정 복구, CI 추가, README 재작성, 샘플 이미지 교체 |
 | [PR #2](https://github.com/loquemedalagana/image-insight/pull/2) | 의존성·보안 업데이트(Next.js 15.5, Apollo Server 5, sharp 0.35), Node 22 이전, 쓰지 않는 의존성 제거 |
 | [PR #3](https://github.com/loquemedalagana/image-insight/pull/3) | README 스크린샷 |
-| 스키마 정리 | resolver 없는 스키마 항목 제거, `getCategoryById` 구현, 스키마·resolver 일치 테스트, introspection 환경별 제어, `addMetadata` 경로 검증 |
+| 스키마 정리 | resolver 없는 스키마 항목 제거, `getCategoryById` 구현, 스키마·resolver 일치 테스트, introspection 환경별 제어, `addMetadata` 경로 검증, EXIF 없는 파일의 응답 오류 수정 |
 
 이 유지보수 작업에서 사람과 AI의 역할 구분은 다음과 같습니다.
 

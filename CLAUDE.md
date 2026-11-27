@@ -11,7 +11,7 @@
 - `/api/init-db`: 메타데이터를 읽어 DB를 초기화
 - 메모리 mockDB(기본 저장소)
 - 갤러리 화면: 서버 컴포넌트에서 Apollo Client로 조회, 카테고리 필터, masonry 목록
-- Jest 테스트 5개 파일(18개), Docker/Compose 개발 환경, GitHub Actions CI
+- Jest 테스트 5개 파일(19개), Docker/Compose 개발 환경, GitHub Actions CI
 
 계획만 있음(코드 없음 또는 스키마만 있음)
 

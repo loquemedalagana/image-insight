@@ -31,7 +31,7 @@ A full-stack personal project on Next.js 15 that extracts image information and 
   - `addMetadata` only accepts file paths inside the sample folder.
 - **DB init endpoint** (`/api/init-db`): loads the extracted metadata into the store
 - **Gallery page**: queries with Apollo Client in a server component, category filter driven by the URL query, masonry list
-- **Tests and CI**: 18 Jest tests (GraphQL API, schema and resolver match, path validation, DB init, extraction pipeline, EXIF parsing). GitHub Actions runs lint and tests
+- **Tests and CI**: 19 Jest tests (GraphQL API, schema and resolver match, path validation, DB init, extraction pipeline, EXIF parsing). GitHub Actions runs lint and tests
 - **Docker/Compose** development environment
 
 ## Planned (not implemented)
@@ -155,7 +155,7 @@ docker run -p 3000:3000 image-insight
 ### 3. Tests, lint, codegen
 
 ```bash
-npm test          # 18 Jest tests (uses tests/fixtures)
+npm test          # 19 Jest tests (uses tests/fixtures)
 npm run lint      # ESLint
 npm run codegen   # types.graphql → src/__generated__/graphql.ts
 npm run build     # production build
@@ -180,7 +180,7 @@ The next two are one-line Apollo Server settings in [`server.ts`](src/app/api/gr
 `getAllImagesAsync` in [`fileUtils.ts`](src/utils/fileUtils.ts) and `walkDirAsync` in [`extractMetadataFromLocal.ts`](src/lib/extractMetadataFromLocal.ts) recurse into subfolders with `yield*` and emit one file at a time. Files are processed one by one with `for await` instead of building the full path list first, and a file that fails is logged and skipped.
 
 **3. Handling files without EXIF**
-[`processExif.ts`](src/lib/processExif.ts) returns a `{ message }` object instead of throwing when a file has no EXIF or parsing fails. When EXIF exists, each field gets a default so the response shape stays the same. Both cases are covered with fixture images in [`processExif.test.ts`](tests/lib/processExif.test.ts).
+[`processExif.ts`](src/lib/processExif.ts) returns a `{ message }` object instead of throwing when a file has no EXIF or parsing fails. When EXIF exists, each field gets a default so the response shape stays the same. For a file without EXIF, [`metadataUtils.ts`](src/utils/metadataUtils.ts) stores `exif` as `null`, which matches the nullable `exif` in the schema. Both cases are covered with fixture images in [`processExif.test.ts`](tests/lib/processExif.test.ts) and [`graphql.test.ts`](tests/api/graphql.test.ts).
 
 **4. Docker to pin the Node version**
 At the time, my local machine ran Node 22 and the assumed target environment ran Node 18, so the [`Dockerfile`](Dockerfile) and [`docker-compose.yml`](docker-compose.yml) pin the runtime. The image was moved to `node:22` in the 2026-11 dependency update. Source is mounted as a volume, and `node_modules` stays inside the container.
@@ -194,7 +194,6 @@ At the time, my local machine ran Node 22 and the assumed target environment ran
 - There is no query depth or complexity limit.
 - There is no DataLoader (N+1 prevention).
 - There is no structured logging or monitoring, only `console.log`.
-- For a file without EXIF, querying a non-null field such as `exif.whitePoint` through GraphQL returns an error. The schema and the returned value disagree here, and this is not fixed yet.
 - Storage is an in-memory mockDB, so data is lost on restart. The MongoDB adapter is incomplete.
 - Resolvers call mockDB directly, so there are two data paths: the resolvers and the `databaseManager` abstraction.
 - Tests focus on server-side logic. There are no component tests or E2E tests.
@@ -220,7 +219,7 @@ The 2026-11 maintenance work:
 | [PR #1](https://github.com/loquemedalagana/image-insight/pull/1) | Recovered the broken tests (4 of 9 failing → all passing), fixed the lint config, added CI, rewrote the README, replaced the sample images |
 | [PR #2](https://github.com/loquemedalagana/image-insight/pull/2) | Dependency and security updates (Next.js 15.5, Apollo Server 5, sharp 0.35), move to Node 22, removal of unused dependencies |
 | [PR #3](https://github.com/loquemedalagana/image-insight/pull/3) | README screenshots |
-| Schema cleanup | Removed schema items without resolvers, implemented `getCategoryById`, added the schema and resolver match test, environment-based introspection, path validation for `addMetadata` |
+| Schema cleanup | Removed schema items without resolvers, implemented `getCategoryById`, added the schema and resolver match test, environment-based introspection, path validation for `addMetadata`, a fix for the error on files without EXIF |
 
 In this maintenance work, the split between me and the AI tool was as follows.
 
