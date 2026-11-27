@@ -121,7 +121,7 @@ git lfs pull
 
 Without the LFS files the samples stay as pointer text and the gallery looks empty. **The tests pass without LFS** (test images are regular files in `tests/fixtures`).
 
-The samples are 49 cat photos I took myself (about 16MB). The folders `together`, `gray-tabby` and `brown-tabby` become the categories. For publishing, the long edge was reduced to 2000px, and camera and lens serial numbers and XMP were removed. Camera and lens model, exposure, capture date and the copyright notice were kept.
+The samples are 50 cat photos I took myself (about 16MB). The folders `together`, `gray-tabby` and `brown-tabby` become the categories. For publishing, the long edge was reduced to 2000px, and camera and lens serial numbers and XMP were removed. Camera and lens model, exposure, capture date and the copyright notice were kept.
 
 ### 1. Run locally
 
