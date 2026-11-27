@@ -69,8 +69,6 @@ Based on `package.json` and the actual imports.
 
 **MongoDB adapter status**: [`src/lib/mongoDB.ts`](src/lib/mongoDB.ts) and [`src/lib/databaseManager.ts`](src/lib/databaseManager.ts) contain a branch that uses MongoDB when `USE_MONGO_DB=true`. However, the code checks whether a connection exists before it ever tries to connect, so the connection never starts and everything falls back to mockDB. The GraphQL resolvers also call mockDB directly instead of going through `databaseManager`. For these reasons MongoDB is listed as incomplete, not supported.
 
-`exif-js`, `formidable`, `supertest`, `node-mocks-http` and `@testing-library/*` are installed but not used by the current code.
-
 ---
 
 ## Architecture
