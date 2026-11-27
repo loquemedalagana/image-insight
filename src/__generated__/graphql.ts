@@ -287,6 +287,9 @@ export function useGetMetadataByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>(GetMetadataByIdDocument, options);
         }
+// @ts-ignore
+export function useGetMetadataByIdSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>;
+export function useGetMetadataByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetMetadataByIdQuery | undefined, GetMetadataByIdQueryVariables>;
 export function useGetMetadataByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMetadataByIdQuery, GetMetadataByIdQueryVariables>(GetMetadataByIdDocument, options);
@@ -340,6 +343,9 @@ export function useGetMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMetadataQuery, GetMetadataQueryVariables>(GetMetadataDocument, options);
         }
+// @ts-ignore
+export function useGetMetadataSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMetadataQuery, GetMetadataQueryVariables>): Apollo.UseSuspenseQueryResult<GetMetadataQuery, GetMetadataQueryVariables>;
+export function useGetMetadataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMetadataQuery, GetMetadataQueryVariables>): Apollo.UseSuspenseQueryResult<GetMetadataQuery | undefined, GetMetadataQueryVariables>;
 export function useGetMetadataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMetadataQuery, GetMetadataQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMetadataQuery, GetMetadataQueryVariables>(GetMetadataDocument, options);
@@ -380,6 +386,9 @@ export function useGetCategoryListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCategoryListQuery, GetCategoryListQueryVariables>(GetCategoryListDocument, options);
         }
+// @ts-ignore
+export function useGetCategoryListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCategoryListQuery, GetCategoryListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCategoryListQuery, GetCategoryListQueryVariables>;
+export function useGetCategoryListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCategoryListQuery, GetCategoryListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCategoryListQuery | undefined, GetCategoryListQueryVariables>;
 export function useGetCategoryListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCategoryListQuery, GetCategoryListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCategoryListQuery, GetCategoryListQueryVariables>(GetCategoryListDocument, options);
