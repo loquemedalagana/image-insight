@@ -15,10 +15,9 @@
 | 핵심 기술 | TypeScript, Next.js 15(App Router), React 19, Apollo Server·Client(GraphQL), graphql-codegen, sharp, exifr, Jest, Docker |
 | 상태 | 로컬 실행용 프로토타입. 배포·운영·인증 없음. 저장소는 메모리 mockDB |
 
-<!-- TODO(screenshot): 갤러리 화면 스크린샷을 docs/screenshot-gallery.png 로 추가한 뒤 아래 주석을 해제 -->
-<!-- ![갤러리 화면](docs/screenshot-gallery.png) -->
-
-> 스크린샷 자리 (추가 예정)
+| 전체 갤러리 | 카테고리 필터 (gray-tabby) |
+| --- | --- |
+| ![전체 갤러리](docs/screenshot-gallery.jpg) | ![카테고리 필터 (gray-tabby)](docs/screenshot-filter.jpg) |
 
 ---
 
