@@ -84,7 +84,7 @@ flowchart LR
     R --> M[("mockDB<br/>in memory")]
     I --> DM[databaseManager]
     DM --> M
-    DM -.->|"incomplete: not reached today"| MG[("MongoDB")]
+    DM -.->|"not connected yet"| MG[("MongoDB")]
 
     subgraph EX["Metadata extraction pipeline"]
         direction LR
@@ -96,6 +96,18 @@ flowchart LR
     I --> EX
     G -->|"once at server start"| EX
     F[("public/samples<br/>sample images")] --> W
+
+    classDef client fill:#dbeafe,stroke:#3b82f6,color:#1e3a8a
+    classDef api fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef store fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef pipe fill:#f3e8ff,stroke:#9333ea,color:#581c87
+    classDef planned fill:#f3f4f6,stroke:#9ca3af,color:#4b5563,stroke-dasharray:4 3
+
+    class B,P client
+    class I,G,R,DM api
+    class M,F store
+    class W,E,S,X pipe
+    class MG planned
 ```
 
 1. When the page renders, it first calls `/api/init-db`, which loads the metadata of the sample folder into the store.
@@ -209,7 +221,7 @@ For the 2026-11 cleanup, the split was as follows.
 - Generating synthetic fixture images with sharp ([`tests/fixtures/generate.mjs`](tests/fixtures/generate.mjs)) and pointing the tests at them
 - Fixing the ESLint config error and cleaning up `any` types (no behavior change), and fixing the `searchParams` type for Next.js 15
 - Writing the GitHub Actions workflow
-- Drafting the README, and confirming that the MongoDB branch is not actually reached
+- Drafting the README, and confirming that the MongoDB code never actually runs
 - Running the EXIF privacy check on the sample images and summarizing the result, then resizing the samples and removing serial numbers
 - Fixing the first GraphQL response being empty right after server start
 

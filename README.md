@@ -84,7 +84,7 @@ flowchart LR
     R --> M[("mockDB<br/>메모리")]
     I --> DM[databaseManager]
     DM --> M
-    DM -.->|"미완성: 현재 도달하지 않음"| MG[("MongoDB")]
+    DM -.->|"아직 미연결"| MG[("MongoDB")]
 
     subgraph EX["메타데이터 추출 파이프라인"]
         direction LR
@@ -96,6 +96,18 @@ flowchart LR
     I --> EX
     G -->|"서버 시작 시 1회"| EX
     F[("public/samples<br/>샘플 이미지")] --> W
+
+    classDef client fill:#dbeafe,stroke:#3b82f6,color:#1e3a8a
+    classDef api fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef store fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef pipe fill:#f3e8ff,stroke:#9333ea,color:#581c87
+    classDef planned fill:#f3f4f6,stroke:#9ca3af,color:#4b5563,stroke-dasharray:4 3
+
+    class B,P client
+    class I,G,R,DM api
+    class M,F store
+    class W,E,S,X pipe
+    class MG planned
 ```
 
 1. 페이지가 렌더링될 때 `/api/init-db`를 먼저 호출해 샘플 폴더의 메타데이터를 저장소에 적재합니다.
@@ -209,7 +221,7 @@ npm run build     # 프로덕션 빌드
 - sharp로 합성 fixture 이미지 생성([`tests/fixtures/generate.mjs`](tests/fixtures/generate.mjs)), 테스트가 fixture를 보도록 수정
 - ESLint 설정 오류 수정과 `any` 타입 정리(동작 변경 없음), Next.js 15의 `searchParams` 타입 수정
 - GitHub Actions 워크플로 작성
-- README 초안 작성, MongoDB 분기가 실제로는 도달하지 않는다는 점 확인
+- README 초안 작성, MongoDB 쪽 코드가 실제로는 실행되지 않는다는 점 확인
 - 샘플 이미지의 EXIF 개인정보 점검 스크립트 실행과 결과 정리, 샘플 리사이즈와 일련번호 제거 처리
 - 서버 시작 직후 첫 GraphQL 응답이 비어 나가던 문제 수정
 
