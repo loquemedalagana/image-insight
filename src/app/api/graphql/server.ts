@@ -29,9 +29,10 @@ export const createServer = () => {
   }>({
     typeDefs,
     resolvers,
-    csrfPrevention: true,
+    csrfPrevention: true, // Apollo Server 기본값(켜짐)을 명시
     cache: 'bounded',
-    introspection: true, // 개발 환경에서 Playground 활성화
+    // 스키마 조회(introspection)는 개발 환경에서만 허용 (Apollo Server 기본 동작을 명시)
+    introspection: process.env.NODE_ENV !== 'production',
   });
 };
 
