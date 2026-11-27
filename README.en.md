@@ -66,7 +66,6 @@ Based on `package.json` and the actual imports.
 | Styling | Tailwind CSS 3 | |
 | Testing | Jest 29 + ts-jest (ESM mode) | |
 | Environment | Docker (node:18), Docker Compose, GitHub Actions (Node 20) | |
-| File management | Git LFS | sample images in `public/samples` |
 
 **MongoDB adapter status**: [`src/lib/mongoDB.ts`](src/lib/mongoDB.ts) and [`src/lib/databaseManager.ts`](src/lib/databaseManager.ts) contain a branch that uses MongoDB when `USE_MONGO_DB=true`. However, the code checks whether a connection exists before it ever tries to connect, so the connection never starts and everything falls back to mockDB. The GraphQL resolvers also call mockDB directly instead of going through `databaseManager`. For these reasons MongoDB is listed as incomplete, not supported.
 
@@ -96,7 +95,7 @@ flowchart LR
 
     I --> EX
     G -->|"once at server start"| EX
-    F[("public/samples<br/>Git LFS")] --> W
+    F[("public/samples<br/>sample images")] --> W
 ```
 
 1. When the page renders, it first calls `/api/init-db`, which loads the metadata of the sample folder into the store.
@@ -107,21 +106,14 @@ flowchart LR
 
 ## Getting started
 
-### 0. Clone and sample images
+### 0. Clone
 
 ```bash
 git clone https://github.com/loquemedalagana/image-insight.git
 cd image-insight
 ```
 
-Sample images are stored with Git LFS. To see images in the gallery, pull the LFS files.
-
-```bash
-git lfs install
-git lfs pull
-```
-
-Without the LFS files the samples stay as pointer text and the gallery looks empty. **The tests pass without LFS** (test images are regular files in `tests/fixtures`).
+The sample images are regular files in the repository, so a plain clone is enough. Git LFS is not needed. The tests do not read the sample folder; they use small test-only images in `tests/fixtures`.
 
 The samples are 50 cat photos I took myself (about 16MB). The folders `together`, `gray-tabby` and `brown-tabby` become the categories. For publishing, the long edge was reduced to 2000px, and camera and lens serial numbers and XMP were removed. Camera and lens model, exposure, capture date and the copyright notice were kept.
 
@@ -152,7 +144,7 @@ docker run -p 3000:3000 image-insight
 ### 3. Tests, lint, codegen
 
 ```bash
-npm test          # 9 Jest tests (no LFS needed)
+npm test          # 9 Jest tests (uses tests/fixtures)
 npm run lint      # ESLint
 npm run codegen   # types.graphql → src/__generated__/graphql.ts
 npm run build     # production build
@@ -202,7 +194,8 @@ For the 2026-11 cleanup, the split was as follows.
 **Decisions I made**
 
 - Scope: no new features; only make sure nothing breaks when someone clones the repository and runs the tests
-- Keeping tests independent of Git LFS with separate fixtures, and not pulling LFS in CI
+- Keeping tests independent of the sample folder and Git LFS with separate fixtures
+- Dropping Git LFS once the samples were small, and storing them as regular files (so a plain clone shows the gallery)
 - Separating implemented and planned items in the README, and removing technologies that are not in the code from the stack
 - Unifying the repository, package and Docker names as `image-insight`
 - Recording the original code and the AI-assisted work separately
@@ -211,7 +204,7 @@ For the 2026-11 cleanup, the split was as follows.
 
 **Work done by Claude Code** (reviewed before merging)
 
-- Diagnosing the test failures: no `jest` global in ESM mode, sharp failing on LFS pointer files, and a failure-case test that never reached its spy because of module state
+- Diagnosing the test failures: no `jest` global in ESM mode, sharp failing on samples that were still Git LFS pointer files at the time, and a failure-case test that never reached its spy because of module state
 - Generating synthetic fixture images with sharp ([`tests/fixtures/generate.mjs`](tests/fixtures/generate.mjs)) and pointing the tests at them
 - Fixing the ESLint config error and cleaning up `any` types (no behavior change), and fixing the `searchParams` type for Next.js 15
 - Writing the GitHub Actions workflow

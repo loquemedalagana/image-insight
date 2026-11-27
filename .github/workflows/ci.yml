@@ -18,9 +18,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          # 샘플 이미지는 LFS 포인터로만 받는다. 테스트는 tests/fixtures만 사용한다.
-          lfs: false
 
       - uses: actions/setup-node@v4
         with:

@@ -7,7 +7,7 @@ import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { getAllImagesAsync } from '@/utils/fileUtils';
 import { Metadata, Category } from '__generated__/graphql';
 
-// LFS와 무관한 테스트 전용 fixture (tests/setupEnv.ts의 SAMPLES_DIR과 같은 폴더)
+// 샘플 폴더와 무관한 테스트 전용 fixture (tests/setupEnv.ts의 SAMPLES_DIR과 같은 폴더)
 const samplesDir = path.join(process.cwd(), 'tests/fixtures/samples');
 
 describe('GraphQL API Tests', () => {

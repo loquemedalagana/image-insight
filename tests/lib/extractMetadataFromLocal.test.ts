@@ -3,7 +3,7 @@ import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { getAllImagesAsync } from '@/utils/fileUtils';
 
 test('extractMetadataFromLocal should return metadata for all sample images', async () => {
-  // 샘플 이미지 디렉토리 경로 (LFS와 무관한 테스트 전용 fixture)
+  // 샘플 이미지 디렉토리 경로 (샘플 폴더와 무관한 테스트 전용 fixture)
   const samplesDir = path.join(process.cwd(), 'tests/fixtures/samples');
 
   // ✅ 예상 파일 목록 가져오기 (`Array.fromAsync()` 제거)

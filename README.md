@@ -66,7 +66,6 @@
 | 스타일 | Tailwind CSS 3 | |
 | 테스트 | Jest 29 + ts-jest (ESM 모드) | |
 | 환경 | Docker(node:18), Docker Compose, GitHub Actions(Node 20) | |
-| 파일 관리 | Git LFS | `public/samples`의 샘플 이미지 |
 
 **MongoDB 어댑터 상태**: [`src/lib/mongoDB.ts`](src/lib/mongoDB.ts)와 [`src/lib/databaseManager.ts`](src/lib/databaseManager.ts)에 `USE_MONGO_DB=true`일 때 MongoDB로 분기하는 코드가 있습니다. 하지만 연결 여부를 먼저 확인한 뒤에야 연결을 시도하는 구조라서 지금은 연결이 시작되지 않고 항상 mockDB로 떨어집니다. 또 GraphQL resolver는 `databaseManager`를 거치지 않고 mockDB를 직접 호출합니다. 그래서 MongoDB는 "지원"이 아니라 "미완성"으로 분류했습니다.
 
@@ -96,7 +95,7 @@ flowchart LR
 
     I --> EX
     G -->|"서버 시작 시 1회"| EX
-    F[("public/samples<br/>Git LFS")] --> W
+    F[("public/samples<br/>샘플 이미지")] --> W
 ```
 
 1. 페이지가 렌더링될 때 `/api/init-db`를 먼저 호출해 샘플 폴더의 메타데이터를 저장소에 적재합니다.
@@ -107,21 +106,14 @@ flowchart LR
 
 ## 실행 방법
 
-### 0. 클론과 샘플 이미지
+### 0. 클론
 
 ```bash
 git clone https://github.com/loquemedalagana/image-insight.git
 cd image-insight
 ```
 
-샘플 이미지는 Git LFS로 관리합니다. 갤러리에서 이미지를 보려면 LFS 파일을 받아야 합니다.
-
-```bash
-git lfs install
-git lfs pull
-```
-
-LFS 파일을 받지 않으면 샘플이 포인터 텍스트로 남아 갤러리가 비어 보입니다. **테스트는 LFS 없이도 통과합니다**(테스트 전용 이미지는 `tests/fixtures`에 일반 파일로 들어 있습니다).
+샘플 이미지는 저장소에 일반 파일로 들어 있어서 clone만 하면 됩니다. Git LFS는 필요 없습니다. 테스트는 샘플 폴더가 아니라 `tests/fixtures`의 작은 테스트 전용 이미지를 씁니다.
 
 샘플은 직접 찍은 고양이 사진 50장(약 16MB)이고, 폴더 `together`, `gray-tabby`, `brown-tabby`가 카테고리가 됩니다. 공개용으로 긴 변을 2000px로 줄였고, 카메라·렌즈 일련번호와 XMP는 제거했습니다. 카메라·렌즈 모델, 노출, 촬영일, 저작권 표기는 남겼습니다.
 
@@ -152,7 +144,7 @@ docker run -p 3000:3000 image-insight
 ### 3. 테스트, lint, codegen
 
 ```bash
-npm test          # Jest 9개 테스트 (LFS 불필요)
+npm test          # Jest 9개 테스트 (tests/fixtures 사용)
 npm run lint      # ESLint
 npm run codegen   # types.graphql → src/__generated__/graphql.ts
 npm run build     # 프로덕션 빌드
@@ -202,7 +194,8 @@ npm run build     # 프로덕션 빌드
 **직접 판단한 것**
 
 - 작업 범위: 기능을 늘리지 않고, clone해서 테스트를 돌렸을 때 문제가 없게 만드는 것까지만
-- 테스트가 Git LFS에 의존하지 않도록 fixture를 따로 두고, CI에서도 LFS를 받지 않기로 한 것
+- 테스트가 샘플 폴더와 Git LFS에 의존하지 않도록 fixture를 따로 두기로 한 것
+- 샘플을 줄인 뒤에는 Git LFS를 걷어내고 일반 파일로 관리하기로 한 것 (clone만 하면 갤러리가 보이도록)
 - README에서 구현된 것과 계획을 분리하고, 실제 코드에 없는 기술을 스택에서 내리기로 한 것
 - 저장소·패키지·Docker 이름을 `image-insight`로 통일
 - 원래 코드와 AI 도구를 쓴 작업을 구분해서 기록하기로 한 것
@@ -211,7 +204,7 @@ npm run build     # 프로덕션 빌드
 
 **Claude Code가 한 것** (검토 후 반영)
 
-- 테스트 실패 원인 분석: ESM 모드에서 `jest` 전역이 없는 문제, LFS 포인터 파일을 sharp가 읽지 못하는 문제, 모듈 상태 때문에 실패 케이스 테스트가 스파이를 타지 않는 문제
+- 테스트 실패 원인 분석: ESM 모드에서 `jest` 전역이 없는 문제, 당시 Git LFS 포인터로 남은 샘플을 sharp가 읽지 못하던 문제, 모듈 상태 때문에 실패 케이스 테스트가 스파이를 타지 않는 문제
 - sharp로 합성 fixture 이미지 생성([`tests/fixtures/generate.mjs`](tests/fixtures/generate.mjs)), 테스트가 fixture를 보도록 수정
 - ESLint 설정 오류 수정과 `any` 타입 정리(동작 변경 없음), Next.js 15의 `searchParams` 타입 수정
 - GitHub Actions 워크플로 작성

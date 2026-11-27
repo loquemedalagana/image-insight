@@ -3,7 +3,7 @@ import fs from 'fs';
 import { processExif } from '@/lib/processExif';
 import { ExifData } from '@/lib/types';
 
-// LFS와 무관한 테스트 전용 fixture
+// 샘플 폴더와 무관한 테스트 전용 fixture
 const samplesDir = path.join(process.cwd(), 'tests/fixtures/samples');
 
 describe('processExif', () => {

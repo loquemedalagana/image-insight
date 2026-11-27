@@ -50,8 +50,8 @@ src/lib/                 mockDB, mongoDB, databaseManager, initDatabase, process
 src/utils/               fileUtils(디렉터리 순회), metadataUtils(sharp+EXIF 결합), calibrationUtils(미사용)
 src/components/          CategoryFilter, MasonryImageList, 에러 컴포넌트
 tests/api, tests/lib     Jest 테스트
-tests/fixtures/          테스트 전용 이미지(LFS 아님)와 생성 스크립트
-public/samples/          샘플 이미지 (Git LFS)
+tests/fixtures/          테스트 전용 이미지와 생성 스크립트
+public/samples/          샘플 이미지 (일반 파일, 폴더 이름이 카테고리)
 ```
 
 ## GraphQL 규칙
@@ -67,12 +67,11 @@ public/samples/          샘플 이미지 (Git LFS)
 - **커밋 메시지와 PR 본문에 `Co-Authored-By: Claude` 같은 AI 공동 작성자 줄이나 "Generated with Claude Code" 문구를 넣지 않는다.** (`.claude/settings.json`의 `attribution`으로도 꺼 두었다.)
 - push, force-push, 히스토리 재작성(rebase, filter-repo, BFG 등), 파일 삭제는 반드시 사용자 확인을 받은 뒤에 한다.
 
-## Git LFS
+## 샘플 이미지
 
-- `*.jpg`, `*.jpeg`, `*.cr3`, `*.crw`는 LFS로 관리한다. 샘플은 `public/samples`에 있다.
-- `tests/fixtures/**`는 `.gitattributes`에서 LFS 대상에서 제외했다.
+- Git LFS는 쓰지 않는다. 이미지는 전부 일반 파일이다. (2025년 원본은 LFS였고, 2026-11에 샘플을 줄이면서 걷어냈다.) LFS 규칙을 다시 추가하지 않는다.
 - 샘플에는 인물 사진을 넣지 않는다. 새 샘플은 긴 변 2000px 이하로 줄이고 카메라·렌즈 일련번호, GPS, XMP를 제거한 뒤 추가한다(카메라·렌즈·노출·촬영일·저작권 표기는 유지).
-- 테스트와 CI는 LFS 파일에 의존하지 않는다. CI checkout은 `lfs: false`다. 새 테스트도 `public/samples`가 아니라 `tests/fixtures`를 쓴다.
+- 테스트와 CI는 `public/samples`에 의존하지 않는다. 새 테스트도 `tests/fixtures`를 쓴다.
 
 ## 문서
 
