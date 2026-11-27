@@ -4,6 +4,8 @@
 
 [한국어](README.md) | English
 
+<p align="center"><img src="docs/cat.png" width="200" alt="Pixel art of a brown tabby cat" /></p>
+
 A full-stack personal project on Next.js 15 that extracts image information and EXIF from local JPG files, serves it through a GraphQL API, and shows it in a gallery with a category filter.
 
 | Item | Details |

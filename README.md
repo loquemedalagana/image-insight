@@ -4,6 +4,8 @@
 
 한국어 | [English](README.en.md)
 
+<p align="center"><img src="docs/cat.png" width="200" alt="갈색 줄무늬 고양이 픽셀 아트" /></p>
+
 로컬 폴더의 JPG에서 이미지 정보와 EXIF를 추출해 GraphQL API로 제공하고, 카테고리 필터가 있는 갤러리로 보여 주는 Next.js 15 풀스택 개인 프로젝트입니다.
 
 | 항목 | 내용 |
