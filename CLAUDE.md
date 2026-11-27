@@ -71,6 +71,7 @@ public/samples/          샘플 이미지 (Git LFS)
 
 - `*.jpg`, `*.jpeg`, `*.cr3`, `*.crw`는 LFS로 관리한다. 샘플은 `public/samples`에 있다.
 - `tests/fixtures/**`는 `.gitattributes`에서 LFS 대상에서 제외했다.
+- 샘플에는 인물 사진을 넣지 않는다. 새 샘플은 긴 변 2000px 이하로 줄이고 카메라·렌즈 일련번호, GPS, XMP를 제거한 뒤 추가한다(카메라·렌즈·노출·촬영일·저작권 표기는 유지).
 - 테스트와 CI는 LFS 파일에 의존하지 않는다. CI checkout은 `lfs: false`다. 새 테스트도 `public/samples`가 아니라 `tests/fixtures`를 쓴다.
 
 ## 문서
