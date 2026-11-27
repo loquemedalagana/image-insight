@@ -121,6 +121,8 @@ git lfs pull
 
 Without the LFS files the samples stay as pointer text and the gallery looks empty. **The tests pass without LFS** (test images are regular files in `tests/fixtures`).
 
+The samples are 49 cat photos I took myself (about 16MB). The folders `together`, `gray-tabby` and `brown-tabby` become the categories. For publishing, the long edge was reduced to 2000px, and camera and lens serial numbers and XMP were removed. Camera and lens model, exposure, capture date and the copyright notice were kept.
+
 ### 1. Run locally
 
 Node.js 20 is recommended (`.nvmrc`).
@@ -203,6 +205,7 @@ For the 2026-11 cleanup, the split was as follows.
 - Unifying the repository, package and Docker names as `image-insight`
 - Recording the original code and the AI-assisted work separately
 - Reviewing the retrospective (`retrospect.md`) and the handling of sample images myself instead of letting them be changed automatically
+- Removing photos of people from the samples and using only cat photos, removing device serial numbers and keeping the copyright notice
 
 **Work done by Claude Code** (reviewed before merging)
 
@@ -211,6 +214,7 @@ For the 2026-11 cleanup, the split was as follows.
 - Fixing the ESLint config error and cleaning up `any` types (no behavior change), and fixing the `searchParams` type for Next.js 15
 - Writing the GitHub Actions workflow
 - Drafting the README, and confirming that the MongoDB branch is not actually reached
-- Running the EXIF privacy check on the sample images and summarizing the result
+- Running the EXIF privacy check on the sample images and summarizing the result, then resizing the samples and removing serial numbers
+- Fixing the first GraphQL response being empty right after server start
 
 The original retrospective from 2025 is in [`retrospect.md`](retrospect.md) (Korean).

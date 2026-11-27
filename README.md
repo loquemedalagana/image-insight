@@ -121,6 +121,8 @@ git lfs pull
 
 LFS 파일을 받지 않으면 샘플이 포인터 텍스트로 남아 갤러리가 비어 보입니다. **테스트는 LFS 없이도 통과합니다**(테스트 전용 이미지는 `tests/fixtures`에 일반 파일로 들어 있습니다).
 
+샘플은 직접 찍은 고양이 사진 49장(약 16MB)이고, 폴더 `together`, `gray-tabby`, `brown-tabby`가 카테고리가 됩니다. 공개용으로 긴 변을 2000px로 줄였고, 카메라·렌즈 일련번호와 XMP는 제거했습니다. 카메라·렌즈 모델, 노출, 촬영일, 저작권 표기는 남겼습니다.
+
 ### 1. 로컬 실행
 
 Node.js 20 권장(`.nvmrc`).
@@ -203,6 +205,7 @@ npm run build     # 프로덕션 빌드 (NEXT_PUBLIC_BASE_URL 필요)
 - 저장소·패키지·Docker 이름을 `image-insight`로 통일
 - 원래 코드와 AI 도구를 쓴 작업을 구분해서 기록하기로 한 것
 - 회고 문서(`retrospect.md`)와 샘플 이미지 처리는 자동으로 고치지 않고 직접 검토해서 결정
+- 샘플에서 인물 사진을 빼고 고양이 사진으로 통일, 장비 일련번호는 제거하고 저작권 표기는 유지
 
 **Claude Code가 한 것** (검토 후 반영)
 
@@ -211,6 +214,7 @@ npm run build     # 프로덕션 빌드 (NEXT_PUBLIC_BASE_URL 필요)
 - ESLint 설정 오류 수정과 `any` 타입 정리(동작 변경 없음), Next.js 15의 `searchParams` 타입 수정
 - GitHub Actions 워크플로 작성
 - README 초안 작성, MongoDB 분기가 실제로는 도달하지 않는다는 점 확인
-- 샘플 이미지의 EXIF 개인정보 점검 스크립트 실행과 결과 정리
+- 샘플 이미지의 EXIF 개인정보 점검 스크립트 실행과 결과 정리, 샘플 리사이즈와 일련번호 제거 처리
+- 서버 시작 직후 첫 GraphQL 응답이 비어 나가던 문제 수정
 
 2025년 당시의 회고는 [`retrospect.md`](retrospect.md)에 있습니다.
