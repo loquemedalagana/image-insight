@@ -1,3 +1,4 @@
+import path from 'path';
 import { createTestServer } from '@/graphql/testServer';
 import { gql } from 'graphql-tag';
 import { ApolloServer, GraphQLResponse } from '@apollo/server';
@@ -5,6 +6,9 @@ import { mockDatabase } from '@/lib/mockDB';
 import { extractMetadataFromLocal } from '@/lib/extractMetadataFromLocal';
 import { getAllImagesAsync } from '@/utils/fileUtils';
 import { Metadata, Category } from '__generated__/graphql';
+
+// LFS와 무관한 테스트 전용 fixture (tests/setupEnv.ts의 SAMPLES_DIR과 같은 폴더)
+const samplesDir = path.join(process.cwd(), 'tests/fixtures/samples');
 
 describe('GraphQL API Tests', () => {
   let server: ApolloServer;
@@ -26,7 +30,7 @@ describe('GraphQL API Tests', () => {
   it('should fetch all metadata and match the image count', async () => {
     // ✅ 전체 이미지 파일 가져오기
     const images: string[] = [];
-    for await (const file of getAllImagesAsync('public/samples')) {
+    for await (const file of getAllImagesAsync(samplesDir)) {
       images.push(file);
     }
 

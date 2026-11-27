@@ -3,15 +3,16 @@ import fs from 'fs';
 import { processExif } from '@/lib/processExif';
 import { ExifData } from '@/lib/types';
 
-const samplesDir = path.join(process.cwd(), 'public/samples');
+// LFS와 무관한 테스트 전용 fixture
+const samplesDir = path.join(process.cwd(), 'tests/fixtures/samples');
 
 describe('processExif', () => {
   let validImagePath: string;
   let invalidFilePath: string;
 
   beforeAll(() => {
-    // `/public/samples/jpg/cats` 디렉토리에서 JPG 파일 찾기
-    const jpgDir = path.join(samplesDir, 'jpg/cats');
+    // EXIF가 들어 있는 fixture 디렉토리에서 JPG 파일 찾기
+    const jpgDir = path.join(samplesDir, 'landscape');
     const items = fs.readdirSync(jpgDir);
     const jpgFiles = items.filter((file) => /\.(jpe?g|JPE?G)$/i.test(file));
 
@@ -22,7 +23,7 @@ describe('processExif', () => {
     }
 
     // EXIF 데이터가 없는 샘플 파일
-    invalidFilePath = path.join(samplesDir, 'file.svg');
+    invalidFilePath = path.join(samplesDir, 'plain/no-exif.jpg');
   });
 
   it('should return parsed EXIF data for a valid JPEG file', async () => {

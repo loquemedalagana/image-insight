@@ -4,7 +4,11 @@ import { extractPhotoMetadata } from '@/utils/metadataUtils';
 import { mockDatabase } from '@/lib/mockDB';
 import { Metadata, Category } from '__generated__/graphql';
 
-const samplesDir = path.join(process.cwd(), 'public/samples');
+// 기본은 public/samples. 테스트에서는 SAMPLES_DIR로 LFS와 무관한 fixture 폴더를 가리킨다.
+const samplesDir = path.resolve(
+  process.cwd(),
+  process.env.SAMPLES_DIR || 'public/samples',
+);
 
 // ✅ Generator를 사용하여 디렉토리를 탐색 (카테고리 ID 미리 처리)
 async function* walkDirAsync(
@@ -47,8 +51,11 @@ export const extractMetadataFromLocal = async (): Promise<Metadata[]> => {
 
       const photo = await extractPhotoMetadata(filePath);
       photos.push({ ...photo, categories: [category] } as Metadata); // ✅ ID 포함 카테고리 적용
-    } catch (error: any) {
-      console.error(`Failed to process file: ${filePath}`, error.message);
+    } catch (error) {
+      console.error(
+        `Failed to process file: ${filePath}`,
+        error instanceof Error ? error.message : error,
+      );
     }
   }
 

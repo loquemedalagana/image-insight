@@ -2,6 +2,7 @@ export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: './', // 프로젝트 루트 설정
+  setupFiles: ['<rootDir>/tests/setupEnv.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
